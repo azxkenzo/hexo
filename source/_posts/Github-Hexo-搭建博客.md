@@ -1,13 +1,16 @@
 ---
 title: Github + Hexo 搭建博客
 date: 2022-05-26 07:56:14
-tags:
+tags: 
+- Hexo
+- Github
 ---
 
 ## 一、准备工作
 
 ### 1. 安装 Node.js
 Node.js 版本需不低于 10.13，建议使用 Node.js 12.0 及以上版本
+点此下载[安装程序](https://nodejs.org/en/download/)
 
 ### 2. 安装 Git
 

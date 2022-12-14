@@ -6,7 +6,7 @@
 title: SonGoKu の Blog
 subtitle: '学吧老哥，学无止境'
 description: '勤练带来力量'
-keywords: Android
+keywords: Android,Kotlin,Linux
 author: Son GoKu
 language: zh-CN
 timezone: 'Asia/Shanghai'
@@ -97,7 +97,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: volantis
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
