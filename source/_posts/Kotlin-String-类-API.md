@@ -74,7 +74,15 @@ inline fun CharSequence.split(regex: Regex, limit: Int = 0): List<String>
 
 
 
-
+## int 常用函数
+* dec(): 返回此值减一。
+* inc(): 返回此值加一
+* div(int): 将此值除以另一个值，将结果截断为更接近零的整数
+* minus(int): 从这个值中减去另一个值。
+* plus(int): 将其他值添加到此值。
+* rem(int): 计算此值除以其他值的截断余数
+* coerceAtLeast(min): 确保此值不小于指定的最小值
+* coerceAtMost(max): 确保此值不大于指定的最大值
 
 
 

@@ -9,16 +9,16 @@ Kotlin 提供了一组内建类型来表示数字。
 
 ### 整型类型
 对于整型数字，有四种类型，它们有不同的大小和取值范围：
-* Byte  8bits  -128～127
-* Short  16bits  -32768～32767
-* Int  32bits
-* Long  64bits
+* `Byte`  8bits  -128～127
+* `Short`  16bits  -32768～32767
+* `Int`  32bits
+* `Long`  64bits
 
 当初始化一个没有明确制定类型的变量时，编译器会自动推断具有足以表示该值的最小范围的类型。如果不超过 Int 的范围，则类型为 Int。如果超过，则类型为 Long。
 要明确指定 Long 值，需要将后缀 L 附加到该值。显式指定类型会触发编译器检查值不超过指定类型的范围。
 
 ### 浮点型类型
-对于实数，Kotlin 提供符合 IEEE 754 标准的浮点类型 Float 和 Double。
+对于实数，Kotlin 提供符合 IEEE 754 标准的浮点类型 `Float` 和 `Double`。
 
 | 类型     | 大小  | 有效位 | 指数位 |
 |--------|-----|-----|-----|
@@ -77,7 +77,6 @@ val a: Int? = 1 // A boxed Int (java.lang.Integer)
 val b: Long? = a // Implicit conversion yields a boxed Long (java.lang.Long)
 print(b == a) // Surprise! This prints "false" as Long's equals() checks whether the other is Long as well
 ```
-
 因此，较小的类型不会隐式转换为较大的类型。 这意味着将 Byte 类型的值分配给 Int 变量需要显式转换。
 
 在许多情况下，不需要显式转换，因为类型是从上下文中推断出来的，并且算术运算会为适当的转换而重载，例如:
@@ -104,13 +103,17 @@ val x = (1 shl 2) and 0x000FF000
 ```
 
 位运算的完整列表：
-shl(bits) – signed shift left
-* shr(bits) – signed shift right
-* ushr(bits) – unsigned shift right
-* and(bits) – bitwise AND
-* or(bits) – bitwise OR
-* xor(bits) – bitwise XOR
-* inv() – 位反转
+
+| Kotlin | 含义    | Java  |
+|--------|-------|-------|
+| shl    | 有符号左移 | <<    |
+| shr    | 有符号右移 | '>>'  |
+| ushr   | 无符号右移 | '>>>' |
+| and    | 位与    | &     |
+| or     | 位或    | l     |
+| xor    | 位异或   | ^     |
+| inv    | 位反转   | ~     |
+
 
 #### 浮点型数字比较
 这里讨论的浮点数运算是：
