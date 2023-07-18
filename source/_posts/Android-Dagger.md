@@ -79,9 +79,9 @@ class UserRemoteDataSource @Inject constructor() { ... }
 
 
 ## Dagger component
-Dagger 可以在项目中创建 graph of the dependencies，以便在需要时找出应该从哪里获取这些依赖关系。 要让 Dagger 执行此操作，您需要创建一个接口并使用 `@Component` 进行注释。 Dagger 创建一个容器，就像手动依赖注入一样。
+Dagger 可以在项目中创建 graph of the dependencies，以便在需要时找出应该从哪里获取这些依赖关系。 要让 Dagger 执行此操作，你需要创建一个接口并使用 `@Component` 进行注释。 Dagger 创建一个容器，就像手动依赖注入一样。
 
-在 `@Component` 接口内部，您可以定义返回所需类实例的函数（即 `UserRepository`）。 `@Component` 告诉 Dagger 生成一个容器，其中包含满足其公开的类型所需的所有依赖项。 这称为 Dagger component； 它包含一个 graph，其中包含 Dagger 知道如何提供的对象及其各自的依赖项。
+在 `@Component` 接口内部，你可以定义返回所需类实例的函数（即 `UserRepository`）。 `@Component` 告诉 Dagger 生成一个容器，其中包含满足其公开的类型所需的所有依赖项。 这称为 Dagger component； 它包含一个 graph，其中包含 Dagger 知道如何提供的对象及其各自的依赖项。
 
 ```kotlin
 // @Component makes Dagger create a graph of dependencies
@@ -93,8 +93,8 @@ interface ApplicationGraph {
 }
 ```
 
-当您构建项目时，Dagger 会为您生成 `ApplicationGraph` 接口的实现：`DaggerApplicationGraph`。 通过其注释处理器，Dagger 创建了一个 dependency graph，该 dependency graph 由三个类（`UserRepository`、`UserLocalDatasource` 和 `UserRemoteDataSource`）之间的关系组成，
-只有一个入口点：获取 `UserRepository` 实例。 您可以按如下方式使用它：
+当你构建项目时，Dagger 会为你生成 `ApplicationGraph` 接口的实现：`DaggerApplicationGraph`。 通过其注释处理器，Dagger 创建了一个 dependency graph，该 dependency graph 由三个类（`UserRepository`、`UserLocalDatasource` 和 `UserRemoteDataSource`）之间的关系组成，
+只有一个入口点：获取 `UserRepository` 实例。 你可以按如下方式使用它：
 
 ```kotlin
 // Create an instance of the application graph
@@ -114,19 +114,19 @@ val userRepository2: UserRepository = applicationGraph.repository()
 assert(userRepository != userRepository2)
 ```
 
-有时，您需要在容器中拥有唯一的依赖项实例。 您需要这个可能有几个原因：
-1. 您希望将此类型作为依赖项的其他类型共享同一实例，例如登录流中使用相同 `LoginUserData` 的多个 `ViewModel` 对象。
-2. 创建对象的成本很高，并且您不希望每次将其声明为依赖项（例如，JSON 解析器）时都创建一个新实例。
+有时，你需要在容器中拥有唯一的依赖项实例。 你需要这个可能有几个原因：
+1. 你希望将此类型作为依赖项的其他类型共享同一实例，例如登录流中使用相同 `LoginUserData` 的多个 `ViewModel` 对象。
+2. 创建对象的成本很高，并且你不希望每次将其声明为依赖项（例如，JSON 解析器）时都创建一个新实例。
 
-在示例中，您可能希望 graph 中有一个可用的唯一 `UserRepository` 实例，以便每次请求 `UserRepository` 时，您总是会获得相同的实例。 
-这在您的示例中非常有用，因为在具有更复杂的 application graph 的现实应用程序中，您可能有多个取决于 `UserRepository` 的 `ViewModel` 对象，并且您不希望每次需要提供 `UserRepository` 时都创建 `UserLocalDataSource` 和 `UserRemoteDataSource` 的新实例 。
+在示例中，你可能希望 graph 中有一个可用的唯一 `UserRepository` 实例，以便每次请求 `UserRepository` 时，你总是会获得相同的实例。 
+这在你的示例中非常有用，因为在具有更复杂的 application graph 的现实应用程序中，你可能有多个取决于 `UserRepository` 的 `ViewModel` 对象，并且你不希望每次需要提供 `UserRepository` 时都创建 `UserLocalDataSource` 和 `UserRemoteDataSource` 的新实例 。
 
-在手动依赖注入中，您可以通过将 `UserRepository` 的相同实例传递给 ViewModel 类的构造函数来实现此目的； 但在 Dagger 中，因为您不是手动编写该代码，所以您必须让 Dagger 知道您想要使用同一个实例。 这可以通过 scope annotation 来完成。
+在手动依赖注入中，你可以通过将 `UserRepository` 的相同实例传递给 ViewModel 类的构造函数来实现此目的； 但在 Dagger 中，因为你不是手动编写该代码，所以你必须让 Dagger 知道你想要使用同一个实例。 这可以通过 scope annotation 来完成。
 
 ### Scoping with Dagger
-您可以使用 scope annotation 将对象的生命周期限制为其 component 的生命周期。 这意味着每次需要提供该类型时都会使用相同的依赖项实例。
+你可以使用 scope annotation 将对象的生命周期限制为其 component 的生命周期。 这意味着每次需要提供该类型时都会使用相同的依赖项实例。
 
-要在 `ApplicationGraph` 中请求存储库时拥有唯一的 `UserRepository` 实例，**请对 `@Component` 接口和 `UserRepository` 使用相同的 scope annotation**。 您可以使用 Dagger 使用的 `javax.inject` 包附带的 `@Singleton` 注释：
+要在 `ApplicationGraph` 中请求存储库时拥有唯一的 `UserRepository` 实例，**请对 `@Component` 接口和 `UserRepository` 使用相同的 scope annotation**。 你可以使用 Dagger 使用的 `javax.inject` 包附带的 `@Singleton` 注释：
 
 ```kotlin
 // @Component 接口上的 scope 注解告知 Dagger
@@ -146,7 +146,7 @@ class UserRepository @Inject constructor(
 ) { ... }
 ```
 
-或者，您可以创建并使用自定义 scope annotation。 您可以按如下方式创建 scope annotation：
+或者，你可以创建并使用自定义 scope annotation。 你可以按如下方式创建 scope annotation：
 
 ```kotlin
 // Creates MyCustomScope
@@ -156,9 +156,9 @@ class UserRepository @Inject constructor(
 annotation class MyCustomScope
 ```
 
-然后，您可以像以前一样使用它
+然后，你可以像以前一样使用它
 
-在这两种情况下，对象都具有用于注释 `@Component` 接口的相同 scope。 因此，每次调用 `applicationGraph.repository()` 时，您都会获得相同的 `UserRepository` 实例。
+在这两种情况下，对象都具有用于注释 `@Component` 接口的相同 scope。 因此，每次调用 `applicationGraph.repository()` 时，你都会获得相同的 `UserRepository` 实例。
 
 
 # Using Dagger in Android apps
@@ -166,13 +166,13 @@ annotation class MyCustomScope
 ## 最佳实践总结
 * 只要有可能，就使用构造函数注入和 `@Inject` 将类型添加到 Dagger graph 中。 当它不是时：|
   * 使用 `@Binds` 告诉 Dagger 接口应该具有哪个实现。 
-  * 使用 `@Provides` 告诉 Dagger 如何提供您的项目不拥有的类。
-* 您应该只在 component 中声明一次模块
+  * 使用 `@Provides` 告诉 Dagger 如何提供你的项目不拥有的类。
+* 你应该只在 component 中声明一次模块
 * 根据使用注释的生命周期来命名 scope annotation。 示例包括 `@ApplicationScope`、`@LoggedUserScope` 和 `@ActivityScope`。
 
 
 ## Adding dependencies
-要在项目中使用 Dagger，请将这些依赖项添加到应用程序的 build.gradle 文件中。 您可以在[此 GitHub 项目](https://github.com/google/dagger/releases)中找到最新版本的 Dagger。
+要在项目中使用 Dagger，请将这些依赖项添加到应用程序的 build.gradle 文件中。 你可以在[此 GitHub 项目](https://github.com/google/dagger/releases)中找到最新版本的 Dagger。
 ```
 // Kotlin
 plugins {
@@ -198,12 +198,12 @@ dependencies {
 
 ![Figure 1. Dependency graph of the example code](https://developer.android.com/static/images/training/dependency-injection/4-application-graph.png)
 
-在 Android 中，您通常会创建一个位于 application 类中的 Dagger graph，因为您希望只要应用程序正在运行，该 graph 的实例就位于内存中。 
-通过这种方式，该 graph 就附加到了应用程序生命周期中。 在某些情况下，您可能还希望 application context 在 graph 中可用。 
-为此，您还需要将 graph 放在 `Application` 类中。 这种方法的优点之一是该 graph 可供其他 Android framework 类使用。 此外，它允许您在测试中使用自定义应用程序类，从而简化了测试。
+在 Android 中，你通常会创建一个位于 application 类中的 Dagger graph，因为你希望只要应用程序正在运行，该 graph 的实例就位于内存中。 
+通过这种方式，该 graph 就附加到了应用程序生命周期中。 在某些情况下，你可能还希望 application context 在 graph 中可用。 
+为此，你还需要将 graph 放在 `Application` 类中。 这种方法的优点之一是该 graph 可供其他 Android framework 类使用。 此外，它允许你在测试中使用自定义应用程序类，从而简化了测试。
 
 因为生成 graph 的接口是用 `@Component` 注解的，所以你可以将其称为 `ApplicationComponent` 或 `ApplicationGraph`。 
-您通常会在自定义 `Application` 类中保留该组件的一个实例，并在每次需要 application graph 时调用它，如以下代码片段所示：
+你通常会在自定义 `Application` 类中保留该组件的一个实例，并在每次需要 application graph 时调用它，如以下代码片段所示：
 
 ```kotlin
 // Definition of the Application graph
@@ -218,9 +218,9 @@ class MyApplication: Application() {
 
 ```
 
-由于某些 Android framework 类（例如 activities and fragments）是由系统实例化的，因此 Dagger 无法为您创建它们。 特别是对于 activity，任何初始化代码都需要进入 `onCreate()` 方法。 这意味着您不能像在前面的示例中那样在类的构造函数中使用 `@Inject` 注释（构造函数注入）。 相反，您必须使用字段注入。
+由于某些 Android framework 类（例如 activities and fragments）是由系统实例化的，因此 Dagger 无法为你创建它们。 特别是对于 activity，任何初始化代码都需要进入 `onCreate()` 方法。 这意味着你不能像在前面的示例中那样在类的构造函数中使用 `@Inject` 注释（构造函数注入）。 相反，你必须使用字段注入。
 
-您希望 Dagger 为您填充这些依赖项，而不是在 `onCreate()` 方法中创建 activity 所需的依赖项。 对于字段注入，您可以将 `@Inject` 注释应用于要从 Dagger graph 中获取的字段。
+你希望 Dagger 为你填充这些依赖项，而不是在 `onCreate()` 方法中创建 activity 所需的依赖项。 对于字段注入，你可以将 `@Inject` 注释应用于要从 Dagger graph 中获取的字段。
 
 ```kotlin
 class LoginActivity: Activity() {
@@ -238,8 +238,8 @@ Dagger 的考虑因素之一是注入的字段不能是私有的。 它们至少
 ```
 
 ### Injecting activities
-Dagger 需要知道 `LoginActivity` 必须访问该 graph 才能提供它所需的 ViewModel。 在 Dagger 基础知识页面中，您使用 `@Component` 接口通过公开具有要从 graph 中获取的内容的返回类型的函数来从 graph 中获取对象。 
-在这种情况下，您需要告诉 Dagger 需要注入依赖项的对象（本例中为 `LoginActivity`）。 为此，您公开一个函数，该函数将请求注入的对象作为参数。
+Dagger 需要知道 `LoginActivity` 必须访问该 graph 才能提供它所需的 ViewModel。 在 Dagger 基础知识页面中，你使用 `@Component` 接口通过公开具有要从 graph 中获取的内容的返回类型的函数来从 graph 中获取对象。 
+在这种情况下，你需要告诉 Dagger 需要注入依赖项的对象（本例中为 `LoginActivity`）。 为此，你公开一个函数，该函数将请求注入的对象作为参数。
 
 ```kotlin
 @Component
@@ -250,11 +250,11 @@ interface ApplicationComponent {
 }
 ```
 
-该函数告诉 Dagger `LoginActivity` 想要访问该 graph 并请求注入。 Dagger 需要满足 `LoginActivity` 所需的所有依赖项（`LoginViewModel` 具有自己的依赖项）。 如果您有多个请求注入的类，则必须在组件中明确声明它们的确切类型。 
-例如，如果您有 `LoginActivity` 和 `RegistrationActivity` 请求注入，则您将有两个 `inject()` 方法，而不是涵盖这两种情况的通用方法。 
+该函数告诉 Dagger `LoginActivity` 想要访问该 graph 并请求注入。 Dagger 需要满足 `LoginActivity` 所需的所有依赖项（`LoginViewModel` 具有自己的依赖项）。 如果你有多个请求注入的类，则必须在组件中明确声明它们的确切类型。 
+例如，如果你有 `LoginActivity` 和 `RegistrationActivity` 请求注入，则你将有两个 `inject()` 方法，而不是涵盖这两种情况的通用方法。 
 通用的 `inject()` 方法不会告诉 Dagger 需要提供什么。 接口中的函数可以有任何名称，**但在 Dagger 中，当它们接收要注入的对象作为参数时叫它们 `inject()` 是一种约定**。
 
-要在 activity 中注入对象，您可以使用 `Application` 类中定义的 `appComponent` 并调用 `inject()` 方法，传入请求注入的 activity 实例。
+要在 activity 中注入对象，你可以使用 `Application` 类中定义的 `appComponent` 并调用 `inject()` 方法，传入请求注入的 activity 实例。
 
 **使用 Activity 时，请在调用 `super.onCreate()` 之前在 Activity 的 `onCreate()` 方法中注入 Dagger，以避免 fragment 恢复问题**。 
 在 `super.onCreate()` 的恢复阶段，Activity 会附加可能想要访问 activity 绑定的 fragment。
@@ -296,9 +296,9 @@ class UserRemoteDataSource @Inject constructor(
 ```
 
 ### Dagger modules
-在此示例中，您使用的是 Retrofit 网络库。 `UserRemoteDataSource` 依赖于 `LoginRetrofitService`。 **但是，创建 `LoginRetrofitService` 实例的方法与您迄今为止所做的不同。 它不是一个类实例化；这是调用 `Retrofit.Builder()` 并传入不同参数来配置登录服务的结果**。
+在此示例中，你使用的是 Retrofit 网络库。 `UserRemoteDataSource` 依赖于 `LoginRetrofitService`。 **但是，创建 `LoginRetrofitService` 实例的方法与你迄今为止所做的不同。 它不是一个类实例化；这是调用 `Retrofit.Builder()` 并传入不同参数来配置登录服务的结果**。
 
-除了 `@Inject` 注释之外，还有另一种方法告诉 Dagger 如何提供类的实例：Dagger 模块内的信息。 Dagger 模块是一个用 `@Module` 注解的类。 在那里，您可以使用 `@Provides` 注释定义依赖项。
+除了 `@Inject` 注释之外，还有另一种方法告诉 Dagger 如何提供类的实例：Dagger 模块内的信息。 Dagger 模块是一个用 `@Module` 注解的类。 在那里，你可以使用 `@Provides` 注释定义依赖项。
 
 ```kotlin
 // @Module informs Dagger that this class is a Dagger Module
@@ -321,14 +321,14 @@ class NetworkModule {
 ```
 
 ```
-注意：您可以在 Dagger 模块中使用 @Provides 注释来告诉 Dagger 如何提供您的项目不拥有的类（例如 Retrofit 的实例）。
+注意：你可以在 Dagger 模块中使用 @Provides 注释来告诉 Dagger 如何提供你的项目不拥有的类（例如 Retrofit 的实例）。
 
 对于接口的实现，最佳实践是使用 @Binds
 ```
 
-**模块是一种从语义上封装有关如何提供对象的信息的方法**。 正如您所看到的，您调用了 `NetworkModule` 类来对提供与网络相关的对象的逻辑进行分组。 如果应用扩展，还可以在这里添加如何提供 `OkHttpClient`，或者如何配置 Gson 或 Moshi。
+**模块是一种从语义上封装有关如何提供对象的信息的方法**。 正如你所看到的，你调用了 `NetworkModule` 类来对提供与网络相关的对象的逻辑进行分组。 如果应用扩展，还可以在这里添加如何提供 `OkHttpClient`，或者如何配置 Gson 或 Moshi。
 
-`@Provides` 方法的依赖项是该方法的参数。 对于前面的方法，`LoginRetrofitService` 可以不提供依赖项，因为该方法没有参数。 如果您已声明 `OkHttpClient` 作为参数，Dagger 需要从 graph 中提供 `OkHttpClient` 实例来满足 `LoginRetrofitService` 的依赖关系。 例如：
+`@Provides` 方法的依赖项是该方法的参数。 对于前面的方法，`LoginRetrofitService` 可以不提供依赖项，因为该方法没有参数。 如果你已声明 `OkHttpClient` 作为参数，Dagger 需要从 graph 中提供 `OkHttpClient` 实例来满足 `LoginRetrofitService` 的依赖关系。 例如：
 
 ```kotlin
 @Module
@@ -341,7 +341,7 @@ class NetworkModule {
 }
 ```
 
-为了让 Dagger graph 了解这个模块，您必须将其添加到 `@Component` 接口，如下所示：
+为了让 Dagger graph 了解这个模块，你必须将其添加到 `@Component` 接口，如下所示：
 ```kotlin
 // The "modules" attribute in the @Component annotation tells Dagger what Modules
 // to include when building the graph
@@ -351,8 +351,8 @@ interface ApplicationComponent {
 }
 ```
 
-向 Dagger graph 中添加类型的推荐方法是使用构造函数注入（即在类的构造函数上使用 `@Inject` 注释）。 有时，这是不可能的，您必须使用 Dagger 模块。 
-一个例子是当您希望 Dagger 使用计算结果来确定如何创建对象的实例时。 每当需要提供该类型的实例时，Dagger 都会运行 `@Provides` 方法内的代码。
+向 Dagger graph 中添加类型的推荐方法是使用构造函数注入（即在类的构造函数上使用 `@Inject` 注释）。 有时，这是不可能的，你必须使用 Dagger 模块。 
+一个例子是当你希望 Dagger 使用计算结果来确定如何创建对象的实例时。 每当需要提供该类型的实例时，Dagger 都会运行 `@Provides` 方法内的代码。
 
 这就是示例中的 Dagger graph 现在的样子：
 
@@ -366,10 +366,10 @@ interface ApplicationComponent {
 ### Dagger scopes
 Dagger 基础知识页面上提到了 scope 作为在组件中拥有类型的唯一实例的一种方式。 这就是将类型的 scope 限定到组件的生命周期的含义。
 
-由于您可能希望在应用程序的其他功能中使用 `UserRepository`，并且可能不希望每次需要时都创建一个新对象，因此您可以将其指定为整个应用程序的唯一实例。 
-`LoginRetrofitService` 也是如此：创建成本可能很高，而且您还希望重用该对象的唯一实例。 创建 `UserRemoteDataSource` 的实例并不那么昂贵，因此没有必要将其 scope 限定到组件的生命周期。
+由于你可能希望在应用程序的其他功能中使用 `UserRepository`，并且可能不希望每次需要时都创建一个新对象，因此你可以将其指定为整个应用程序的唯一实例。 
+`LoginRetrofitService` 也是如此：创建成本可能很高，而且你还希望重用该对象的唯一实例。 创建 `UserRemoteDataSource` 的实例并不那么昂贵，因此没有必要将其 scope 限定到组件的生命周期。
 
-`@Singleton` 是 `javax.inject` 包附带的唯一 scope 注释。 您可以使用它来注释 `ApplicationComponent` 以及您想要在整个 application 中重用的对象。
+`@Singleton` 是 `javax.inject` 包附带的唯一 scope 注释。 你可以使用它来注释 `ApplicationComponent` 以及你想要在整个 application 中重用的对象。
 
 ```kotlin
 @Singleton
@@ -404,11 +404,11 @@ class NetworkModule {
 ```
 
 ### Dagger subcomponents
-如果您的登录流（由单个 `LoginActivity` 管理）包含多个 fragment，则应在所有 fragment 中重用相同的 `LoginViewModel` 实例。 `@Singleton` 无法注释 `LoginViewModel` 以重用实例，原因如下：
+如果你的登录流（由单个 `LoginActivity` 管理）包含多个 fragment，则应在所有 fragment 中重用相同的 `LoginViewModel` 实例。 `@Singleton` 无法注释 `LoginViewModel` 以重用实例，原因如下：
 1. 流程完成后，`LoginViewModel` 的实例将保留在内存中。
-2. 您需要为每个登录流程使用不同的 `LoginViewModel` 实例。 例如，如果用户注销，您需要一个不同的 `LoginViewModel` 实例，而不是与用户第一次登录时相同的实例。
+2. 你需要为每个登录流程使用不同的 `LoginViewModel` 实例。 例如，如果用户注销，你需要一个不同的 `LoginViewModel` 实例，而不是与用户第一次登录时相同的实例。
 
-要将 `LoginViewModel` 的 scope 限定为 `LoginActivity` 的生命周期，您需要为登录流程和新 scope 创建一个新组件（新的 subgraph）。
+要将 `LoginViewModel` 的 scope 限定为 `LoginActivity` 的生命周期，你需要为登录流程和新 scope 创建一个新组件（新的 subgraph）。
 
 让我们创建一个特定于登录流程的 graph。
 
@@ -425,13 +425,13 @@ interface LoginComponent {
 }
 ```
 
-`LoginComponent` 必须能够访问 `ApplicationComponent` 中的对象，因为 `LoginViewModel` 依赖于 `UserRepository`。 告诉 Dagger 您希望新组件使用另一个组件的一部分的方法是使用 Dagger subcomponent。 新组件必须是包含共享资源的组件的 subcomponent。
+`LoginComponent` 必须能够访问 `ApplicationComponent` 中的对象，因为 `LoginViewModel` 依赖于 `UserRepository`。 告诉 Dagger 你希望新组件使用另一个组件的一部分的方法是使用 Dagger subcomponent。 新组件必须是包含共享资源的组件的 subcomponent。
 
 Subcomponent 是继承并扩展父组件的 object graph 的组件。 因此，父组件中提供的所有对象也在子组件中提供。 这样，子组件中的对象可以依赖于父组件提供的对象。
 
-要创建子组件的实例，您需要父组件的实例。 因此，父组件向子组件提供的对象的 scope 仍然是父组件。
+要创建子组件的实例，你需要父组件的实例。 因此，父组件向子组件提供的对象的 scope 仍然是父组件。
 
-在示例中，您必须将 `LoginComponent` 定义为 `ApplicationComponent` 的子组件。 为此，请使用 `@Subcomponent` 注释 `LoginComponent`：
+在示例中，你必须将 `LoginComponent` 定义为 `ApplicationComponent` 的子组件。 为此，请使用 `@Subcomponent` 注释 `LoginComponent`：
 
 ```kotlin
 // @Subcomponent annotation informs Dagger this interface is a Dagger Subcomponent
@@ -445,7 +445,7 @@ interface LoginComponent {
 }
 ```
 
-您还必须在 `LoginComponent` 中定义一个子组件工厂，以便 `ApplicationComponent` 知道如何创建 LoginComponent 的实例。
+你还必须在 `LoginComponent` 中定义一个子组件工厂，以便 `ApplicationComponent` 知道如何创建 LoginComponent 的实例。
 
 ```kotlin
 @Subcomponent
@@ -461,7 +461,7 @@ interface LoginComponent {
 }
 ```
 
-要告诉 Dagger `LoginComponent` 是 `ApplicationComponent` 的子组件，您必须通过以下方式指示它：
+要告诉 Dagger `LoginComponent` 是 `ApplicationComponent` 的子组件，你必须通过以下方式指示它：
 1. 创建一个新的 Dagger 模块（例如 `SubcomponentsModule`），将子组件的类传递给注释的 `subcomponents` 属性。
     ```kotlin
     // The "subcomponents" attribute in the @Module annotation tells Dagger what
@@ -478,7 +478,7 @@ interface LoginComponent {
     interface ApplicationComponent {
     }
    ```
-   请注意，`ApplicationComponent` 不再需要注入 `LoginActivity`，因为该责任现在属于 `LoginComponent`，因此您可以从 `ApplicationComponent` 中删除 `inject()` 方法。
+   请注意，`ApplicationComponent` 不再需要注入 `LoginActivity`，因为该责任现在属于 `LoginComponent`，因此你可以从 `ApplicationComponent` 中删除 `inject()` 方法。
 
    `ApplicationComponent` 的使用者需要知道如何创建 `LoginComponent` 的实例。 父组件必须在其接口中添加一个方法，以允许使用者从父组件的实例中创建子组件的实例：
 3. 在接口中公开创建 `LoginComponent` 实例的工厂：
@@ -493,12 +493,12 @@ interface LoginComponent {
    ```
 
 ### Assigning scopes to subcomponents
-如果构建项目，则可以创建 `ApplicationComponent` 和 `LoginComponent` 的实例。 `ApplicationComponent` 附加到 application 的生命周期，因为只要 application 位于内存中，您就希望使用同一 graph 实例。
+如果构建项目，则可以创建 `ApplicationComponent` 和 `LoginComponent` 的实例。 `ApplicationComponent` 附加到 application 的生命周期，因为只要 application 位于内存中，你就希望使用同一 graph 实例。
 
-`LoginComponent` 的生命周期是怎样的？ 您需要 `LoginComponent` 的原因之一是因为您需要在与登录相关的 fragment 之间共享相同的 `LoginViewModel` 实例。 
-而且，每当有新的登录流程时，您都需要 `LoginViewModel` 的不同实例。 `LoginActivity` 是 `LoginComponent` 的正确生命周期：对于每个新 activity，您需要一个新的 `LoginComponent` 实例和可以使用该 `LoginComponent` 实例的 fragment。
+`LoginComponent` 的生命周期是怎样的？ 你需要 `LoginComponent` 的原因之一是因为你需要在与登录相关的 fragment 之间共享相同的 `LoginViewModel` 实例。 
+而且，每当有新的登录流程时，你都需要 `LoginViewModel` 的不同实例。 `LoginActivity` 是 `LoginComponent` 的正确生命周期：对于每个新 activity，你需要一个新的 `LoginComponent` 实例和可以使用该 `LoginComponent` 实例的 fragment。
 
-由于 `LoginComponent` 附加到 `LoginActivity` 生命周期，因此您必须在 activity 中保留对组件的引用，就像在 `Application` 类中保留对 `applicationComponent` 的引用一样。 这样，fragment 就可以访问它。
+由于 `LoginComponent` 附加到 `LoginActivity` 生命周期，因此你必须在 activity 中保留对组件的引用，就像在 `Application` 类中保留对 `applicationComponent` 的引用一样。 这样，fragment 就可以访问它。
 
 ```kotlin
 class LoginActivity: Activity() {
@@ -508,9 +508,9 @@ class LoginActivity: Activity() {
 }
 ```
 
-请注意，变量 `loginComponent` 未使用 `@Inject` 进行注释，因为您不希望 Dagger 提供该变量。
+请注意，变量 `loginComponent` 未使用 `@Inject` 进行注释，因为你不希望 Dagger 提供该变量。
 
-您可以使用 `ApplicationComponent` 获取对 `LoginComponent` 的引用，然后注入 `LoginActivity`，如下所示：
+你可以使用 `ApplicationComponent` 获取对 `LoginComponent` 的引用，然后注入 `LoginActivity`，如下所示：
 
 ```kotlin
 class LoginActivity: Activity() {
@@ -537,8 +537,8 @@ class LoginActivity: Activity() {
 
 `LoginComponent` 是在 `Activity` 的 `onCreate()` 方法中创建的，当 Activity 被销毁时，它会被隐式销毁。
 
-每次请求时，`LoginComponent` 必须始终提供相同的 `LoginViewModel` 实例。 您可以通过创建自定义注释 scope 并用它注释 `LoginComponent` 和 `LoginViewModel` 来确保这一点。 
-请注意，您不能使用 `@Singleton` 注释，因为它已被父组件使用，这会使该对象成为 application 单例（整个应用程序的唯一实例）。 您需要创建不同的注释 scope。
+每次请求时，`LoginComponent` 必须始终提供相同的 `LoginViewModel` 实例。 你可以通过创建自定义注释 scope 并用它注释 `LoginComponent` 和 `LoginViewModel` 来确保这一点。 
+请注意，你不能使用 `@Singleton` 注释，因为它已被父组件使用，这会使该对象成为 application 单例（整个应用程序的唯一实例）。 你需要创建不同的注释 scope。
 
 ```
 注意：scope 规则如下：
@@ -550,9 +550,9 @@ class LoginActivity: Activity() {
 在这种情况下，组件还涉及子组件。
 ```
 
-在这种情况下，您可以将此 scope 称为 `@LoginScope`，但这不是一个好的做法。 scope 注释的名称不应明确说明其所实现的目的。 
+在这种情况下，你可以将此 scope 称为 `@LoginScope`，但这不是一个好的做法。 scope 注释的名称不应明确说明其所实现的目的。 
 相反，它应该根据其生命周期来命名，因为注释可以被同级组件（例如 `RegistrationComponent` 和 `SettingsComponent`）重用。 
-这就是为什么您应该将其命名为 `@ActivityScope` 而不是 `@LoginScope`。
+这就是为什么你应该将其命名为 `@ActivityScope` 而不是 `@LoginScope`。
 
 ```kotlin
 // Definition of a custom scope called ActivityScope
@@ -574,7 +574,7 @@ class LoginViewModel @Inject constructor(
 ) { ... }
 ```
 
-现在，如果您有两个需要 `LoginViewModel` 的 fragment，则它们都提供有相同的实例。 例如，如果您有 `LoginUsernameFragment` 和 `LoginPasswordFragment`，它们需要由 `LoginComponent` 注入：
+现在，如果你有两个需要 `LoginViewModel` 的 fragment，则它们都提供有相同的实例。 例如，如果你有 `LoginUsernameFragment` 和 `LoginPasswordFragment`，它们需要由 `LoginComponent` 注入：
 
 ```kotlin
 @ActivityScope
@@ -621,11 +621,11 @@ class LoginUsernameFragment: Fragment() {
 ![](https://developer.android.com/static/images/training/dependency-injection/4-graph-subcomponent.png)
 
 让我们分解一下 graph 的各个部分：
-1. `NetworkModule`（以及 `LoginRetrofitService`）包含在 `ApplicationComponent` 中，因为您在组件中指定了它。
-2. `UserRepository` 保留在 `ApplicationComponent` 中，因为它的作用域为 `ApplicationComponent`。 如果项目不断增长，您希望在不同功能（例如注册）之间共享相同的实例。
+1. `NetworkModule`（以及 `LoginRetrofitService`）包含在 `ApplicationComponent` 中，因为你在组件中指定了它。
+2. `UserRepository` 保留在 `ApplicationComponent` 中，因为它的作用域为 `ApplicationComponent`。 如果项目不断增长，你希望在不同功能（例如注册）之间共享相同的实例。
    由于 `UserRepository` 是 `ApplicationComponent` 的一部分，因此它的依赖项（即 `UserLocalDataSource` 和 `UserRemoteDataSource`）也需要位于该组件中，以便能够提供 `UserRepository` 的实例。
 3. `LoginViewModel` 包含在 `LoginComponent` 中，因为只有 `LoginComponent` 注入的类才需要它。 `LoginViewModel` 不包含在 `ApplicationComponent` 中，因为 `ApplicationComponent` 中没有依赖项需要 `LoginViewModel`。
-   类似地，如果您没有将 `UserRepository` 范围限定为 `ApplicationComponent`，Dagger 会自动将 `UserRepository` 及其依赖项作为 `LoginComponent` 的一部分包含在内，因为这是当前唯一使用 `UserRepository` 的地方。
+   类似地，如果你没有将 `UserRepository` 范围限定为 `ApplicationComponent`，Dagger 会自动将 `UserRepository` 及其依赖项作为 `LoginComponent` 的一部分包含在内，因为这是当前唯一使用 `UserRepository` 的地方。
 
 除了将对象的范围限定到不同的生命周期之外，创建子组件是将应用程序的不同部分相互封装的一个好习惯。
 
@@ -633,19 +633,19 @@ class LoginUsernameFragment: Fragment() {
 
 
 ## Best practices when building a Dagger graph
-为您的应用程序构建 Dagger graph 时：
-* 创建组件时，您应该考虑哪个元素负责该组件的生命周期。 在本例中，`Application` 类负责 `ApplicationComponent`，`LoginActivity` 负责 `LoginComponent`。
+为你的应用程序构建 Dagger graph 时：
+* 创建组件时，你应该考虑哪个元素负责该组件的生命周期。 在本例中，`Application` 类负责 `ApplicationComponent`，`LoginActivity` 负责 `LoginComponent`。
 * 仅在有意义时才使用 scope。 过度使用 scope 会对应用程序的运行时性能产生负面影响：只要组件位于内存中，对象就位于内存中，并且获取 scope 对象的成本更高。 当 Dagger 提供对象时，它使用 `DoubleCheck` 锁定而不是工厂类型提供程序。
 
 
 ## Working with Dagger modules
-Dagger 模块是一种封装如何以语义方式提供对象的方法。 您可以在组件中包含模块，但也可以在其他模块中包含模块。 这很强大，但很容易被滥用。
+Dagger 模块是一种封装如何以语义方式提供对象的方法。 你可以在组件中包含模块，但也可以在其他模块中包含模块。 这很强大，但很容易被滥用。
 
 一旦一个模块被添加到一个组件或另一个模块中，它就已经在 Dagger graph 中了； Dagger 可以在该组件中提供这些对象。 在添加模块之前，请检查该模块是否已是 Dagger graph 的一部分，方法是检查该模块是否已添加到组件中，或者编译项目并查看 Dagger 是否可以找到该模块所需的依赖项。
 
 良好的实践表明，模块只能在组件中声明一次（在特定的高级 Dagger 用例之外）。
 
-假设您以这种方式配置了 graph。 `ApplicationComponent` 包括 `Module1` 和 `Module2`，`Module1` 包括 `ModuleX`。
+假设你以这种方式配置了 graph。 `ApplicationComponent` 包括 `Module1` 和 `Module2`，`Module1` 包括 `ModuleX`。
 
 ```kotlin
 @Component(modules = [Module1::class, Module2::class])
@@ -672,7 +672,7 @@ class Module1 { ... }
 class Module2 { ... }
 ```
 
-相反，您应该执行以下操作之一：
+相反，你应该执行以下操作之一：
 1. 重构模块并将公共模块提取到组件中。
 2. 使用两个模块共享的对象创建一个新模块，并将其提取到组件中。
 

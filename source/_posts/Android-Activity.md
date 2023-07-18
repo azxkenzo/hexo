@@ -8,7 +8,7 @@ tags: Android
 Activity 是与用户交互的入口点。它代表具有用户界面的单个屏幕。
 
 ## Activity 的生命周期
-当用户浏览、离开和返回App时，App中的 Activity 实例会在其生命周期中通过不同的状态进行转换。Activity 类提供了许多回调，允许 Activity 知道状态已更改。
+当用户浏览、离开和返回 App 时，App 中的 Activity 实例会在其生命周期中通过不同的状态进行转换。Activity 类提供了许多回调，允许 Activity 知道状态已更改。
 
 Activity 类提供了一组核心的6个回调：
 * `onCreate()`
@@ -24,27 +24,27 @@ Activity 类提供了一组核心的6个回调：
 ### 生命周期回调
 
 #### onCreate()
-该回调在系统首次创建 Activity 时触发。在该方法中，应该执行基本的App启动逻辑，该逻辑在 Activity 的整个生命周期内只发生一次。
-该方法接收参数 savedInstanceState，它是一个包含 Activity 先前保存状态的 Bundle对象。如果 Activity 以前从未存在过，则 Bundle 对象的值为null。
+该回调在系统首次创建 Activity 时触发。在该方法中，应该执行基本的 App 启动逻辑，该逻辑在 Activity 的整个生命周期内只发生一次。
+该方法接收参数 savedInstanceState，它是一个包含 Activity 先前保存状态的 Bundle 对象。如果 Activity 以前从未存在过，则 Bundle 对象的值为 null。
 
 #### onStart()
-onStart() 调用使 Activity对用户可见。
+`onStart()` 调用使 Activity对用户可见。
 
 #### onResume()
-当 activity 进入 Resumed 状态时，它来到前台，然后系统调用 onResume() 回调。这是App与用户交互的状态，App会一直保持这种状态。
+当 activity 进入 Resumed 状态时，它来到前台，然后系统调用 `onResume()` 回调。这是App与用户交互的状态，App会一直保持这种状态。
 
 #### onPause()
-系统调用此方法作为用户离开 Activity 的第一个指示；它表示 Activity 不再在前台。使用 onPause() 方法暂停或调整在 Activity 处于暂停状态时不应继续并且希望很快恢复的操作。
+系统调用此方法作为用户离开 Activity 的第一个指示；它表示 Activity 不再在前台。使用 `onPause()` 方法暂停或调整在 Activity 处于暂停状态时不应继续并且希望很快恢复的操作。
 
 Activity 进入该状态的原因有多种：
-* 某些事件会中断App执行，如 onResume() 部分所述。
+* 某些事件会中断App执行，如 `onResume()` 部分所述。
 * 多个App以多窗口模式运行。由于任何时候只有一个App（窗口）具有焦点，因此系统会暂停其他所有App。
 * 一个新的、半透明的 Activity（如 dialog）打开。只要 Activity 仍然部分可见但不在焦点上，它就会保持暂停状态。
 
 #### onStop()
-当 activity 不再对用户可见，它会进入 Stopped 状态，然后系统调用 onStop() 回调。在该方法中，app应该释放或调整在app对用户不可见时不需要的资源。
+当 activity 不再对用户可见，它会进入 Stopped 状态，然后系统调用 `onStop()` 回调。在该方法中，app应该释放或调整在app对用户不可见时不需要的资源。
 
-还应该使用 onStop() 来执行相对CPU密集型的关闭操作。例如，可以在 onStop() 期间将数据保存到数据库。
+还应该使用 `onStop()` 来执行相对CPU密集型的关闭操作。例如，可以在 `onStop()` 期间将数据保存到数据库。
 
 当 Activity 进入 Stopped 状态时，Activity 对象一直驻留在内存中：它维护所有状态和成员信息，但不附加到窗口管理器。
 

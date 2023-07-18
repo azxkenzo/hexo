@@ -7,14 +7,14 @@ tags: Kotlin
 Kotlin 允许为类型上预定义的一组运算符提供自定义实现。这些运算符具有预定义的符号表示（如 + 或 *）和优先级。要实现运算符，请为相应类型提供具有特定名称的成员函数或扩展函数。这种类型成为二元运算的左侧类型和一元运算的参数类型。
 
 要重载运算符，请使用运算符修饰符标记相应的函数：
-``` kotlin
+```kotlin
 interface IndexedContainer {
     operator fun get(index: Int)
 }
 ```
 
 重写运算符重载时，可以省略运算符：
-``` kotlin
+```kotlin
 class OrdersList: IndexedContainer {
     override fun get(index: Int) { /*...*/ }
 }
@@ -147,7 +147,7 @@ Okio 围绕两种类型构建，将大量功能打包到一个简单的 API 中�
 每个打开的 `Source` 都需要关闭。 打开流的代码负责确保它已关闭。
 
 这用于自动关闭流。 这可以防止资源泄漏，即使抛出异常也是如此。
-```
+```kotlin
 fun readLines(path: Path) {
     FileSystem.SYSTEM.source(path).use { fileSource ->
         fileSource.buffer().use { bufferedFileSource ->
@@ -164,7 +164,7 @@ fun readLines(path: Path) {
 `readUtf8Line()` API 读取所有数据，直到下一个行分隔符——`\n`、`\r\n` 或文件末尾。 它将数据作为字符串返回，省略末尾的定界符。 当它遇到空行时，该方法将返回一个空字符串。 如果没有更多数据可供读取，它将返回 null。
 
 可以使用 `FileSystem.read()` 在 block 之前缓冲 source，在之后关闭 source。 在 block 的主体中，`this` 是一个 `BufferedSource`。
-```
+```kotlin
 fun readLines1(path: Path) {
     FileSystem.SYSTEM.read(path) {
         while (true) {
@@ -177,7 +177,7 @@ fun readLines1(path: Path) {
 
 ### 写文本文件
 上面使用了 `Source` 和 `BufferedSource` 来读取文件。 为了写入，使用 `Sink` 和 `BufferedSink`。 缓冲的优点是相同的：更强大的 API 和更好的性能。
-```
+```java
 public void writeEnv(Path path) throws IOException {
   try (Sink fileSink = FileSystem.SYSTEM.sink(path);
        BufferedSink bufferedSink = Okio.buffer(fileSink)) {
@@ -195,7 +195,7 @@ public void writeEnv(Path path) throws IOException {
 没有用于编写一行输入的 API； 相反，手动插入自己的换行符。 大多数程序应该将`“\n”`硬编码为换行符。 在极少数情况下，可以使用 `System.lineSeparator()` 而不是`“\n”`：它在 Windows 上返回`“\r\n”`，在其他任何地方返回`“\n”`。
 
 可以使用 `FileSystem.write()` 在我们的块之前缓冲 sink 并在之后关闭 sink。 在块的主体中，`this` 是一个 `BufferedSink`。
-```
+```kotlin
 fun writeEnv(path: Path) {
     FileSystem.SYSTEM.write(path) {
         for ((key, value) in System.getenv()) {
@@ -224,7 +224,7 @@ fun writeEnv(path: Path) {
 使用 `Utf8.size()` 计算将字符串编码为 UTF-8 而不实际编码所需的字节数。 这在像协议缓冲区这样的长度前缀编码中很方便。
 
 使用 `BufferedSource.readUtf8CodePoint()` 读取单个可变长度代码点，使用 `BufferedSink.writeUtf8CodePoint()` 写入一个。
-```
+```kotlin
 fun dumpStringData(s: String) {
   println("                       " + s)
   println("        String.length: " + s.length)
@@ -244,7 +244,7 @@ fun dumpStringData(s: String) {
 * **签名与未签名**。 Java 没有无符号原始类型（除了 `char`！），所以处理这个问题通常发生在应用程序层。 为了使这更容易一些，Okio 接受 `writeByte()` 和 `writeShort()` 的 `int` 类型。 你可以传递一个“无符号”字节，比如 255，Okio 会做正确的事情。
 
 此代码按照 BMP 文件格式对位图进行编码。
-```
+```kotlin
 fun encode(bitmap: Bitmap, sink: BufferedSink) {
   val height = bitmap.height
   val width = bitmap.width
@@ -304,7 +304,7 @@ fun encode(bitmap: Bitmap, sink: BufferedSink) {
 ## 源码分析
 
 ### Source & Sink
-```
+```kotlin
 interface Source : Closeable {
   /**
    * Removes at least 1, and up to `byteCount` bytes from this and appends them to `sink`. Returns

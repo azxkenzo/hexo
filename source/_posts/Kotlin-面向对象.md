@@ -65,7 +65,7 @@ initializer 块中的代码有效地成为主构造器的一部分。 对主构�
 抽象类的主构造器参数不能被声明为 `abstract`。
 
 可以用 abstract 的开放成员重写非抽象的 open 成员。
-```
+```kotlin
 open class Polygon {
     open fun draw() {
         // some default polygon drawing method
@@ -139,7 +139,7 @@ initializer、getter 和 setter 是可选的。
 ### 后端字段
 在 Kotlin 中，field 仅用作属性的一部分，以将其值保存在内存中。 field 不能直接声明。 然而，当一个属性需要一个后端字段时，Kotlin 会自动提供它。 
 可以使用 `field` 标识符在访问器中引用此后端字段：
-```
+```kotlin
 var counter = 0 // the initializer assigns the backing field directly
     set(value) {
         if (value >= 0)
@@ -153,7 +153,7 @@ var counter = 0 // the initializer assigns the backing field directly
 
 ### 后端属性
 如果想做一些不适合这个隐式后端字段方案的事情，总是可以回退到拥有一个后端属性：
-```
+```kotlin
 private var _table: Map<String, Int>? = null
 public val table: Map<String, Int>
     get() {
@@ -207,7 +207,7 @@ public val table: Map<String, Int>
 对于函数式接口，可以使用 SAM 转换，通过使用 lambda 表达式使代码更加简洁和易读。
 
 可以使用 lambda 表达式，而不是手动创建实现函数式接口的类。 通过 SAM 转换，Kotlin 可以将任何签名与接口的单个方法的签名匹配的 lambda 表达式转换为代码，从而动态实例化接口实现。
-```
+```kotlin
 // Creating an instance of a class
 val isEven = object : IntPredicate {
    override fun accept(i: Int): Boolean {
@@ -222,7 +222,7 @@ val isEven = IntPredicate { it % 2 == 0 }
 
 
 ### 函数式接口 VS typealias
-```
+```kotlin
 typealias IntPredicate = (i: Int) -> Boolean
 
 val isEven: IntPredicate = { it % 2 == 0 }
@@ -283,7 +283,7 @@ Kotlin 提供了使用新功能扩展类或接口的能力，而无需从类继�
 
 ### 扩展函数
 要声明扩展函数，需要在其名称前加上 receiver 类型，它指的是被扩展的类型。
-```
+```kotlin
 fun MutableList<Int>.swap(index1: Int, index2: Int) {
     val tmp = this[index1] // 'this' corresponds to the list
     this[index1] = this[index2]
@@ -296,7 +296,7 @@ fun MutableList<Int>.swap(index1: Int, index2: Int) {
 扩展实际上并不修改它们扩展的类。 通过定义扩展，不会将新成员插入到类中，而只是使新函数可以使用这种类型的变量的点符号调用。
 
 扩展函数是静态分派的，这意味着它们不是按 receiver 类型虚拟的。 被调用的扩展函数由调用函数的表达式的类型决定，而不是由在运行时计算该表达式的结果类型决定。 例如：
-```
+```kotlin
 open class Shape
 class Rectangle: Shape()
 
@@ -315,7 +315,7 @@ printClassName(Rectangle())
 
 ### 可空 receiver
 注意，可以使用可为空的 receiver 类型定义扩展。 即使对象变量的值为 null，也可以在对象变量上调用这些扩展，并且它们可以在主体内检查 `this == null`。
-```
+```kotlin
 fun Any?.toString(): String {
     if (this == null) return "null"
     // after the null check, 'this' is autocast to a non-null type, so the toString() below
@@ -325,7 +325,7 @@ fun Any?.toString(): String {
 ```
 
 ### 扩展属性
-```
+```kotlin
 val <T> List<T>.lastIndex: Int
     get() = size - 1
 ```
@@ -334,7 +334,7 @@ val <T> List<T>.lastIndex: Int
 
 ### 伴生对象扩展
 如果一个类定义了伴随对象，还可以为伴随对象定义扩展函数和属性。 就像伴生对象的常规成员一样，它们可以仅使用类名作为限定符来调用：
-```
+```kotlin
 class MyClass {
     companion object { }  // will be called "Companion"
 }
@@ -388,7 +388,7 @@ fun main() {
 
 ### 数据类和解构声明
 为数据类生成的 Component 函数可以在解构声明中使用它们：
-```
+```kotlin
 val jane = User("Jane", 35)
 val (name, age) = jane
 println("$name, $age years of age") // prints "Jane, 35 years of age"
@@ -437,7 +437,7 @@ println("$name, $age years of age") // prints "Jane, 35 years of age"
 每个枚举常量都是个对象。枚举常量通过逗号分隔。
 
 由于每个枚举都是枚举类的一个实例，因此可以将其初始化为：
-```
+```kotlin
 enum class Color(val rgb: Int) {
     RED(0xFF0000),
     GREEN(0x00FF00),
@@ -447,7 +447,7 @@ enum class Color(val rgb: Int) {
 
 
 枚举常量可以使用其相应的方法以及重写基方法来声明它们自己的匿名类。
-```
+```kotlin
 enum class ProtocolState {
     WAITING {
         override fun signal() = TALKING
@@ -464,7 +464,7 @@ enum class ProtocolState {
 
 ### 在枚举类中实现接口
 枚举类可以实现一个接口（但它不能从一个类派生），为所有条目提供接口成员的公共实现，或者为其匿名类中的每个条目提供单独的实现。 这是通过将要实现的接口添加到枚举类声明中来完成的，如下所示：
-```
+```kotlin
 enum class IntArithmetics : BinaryOperator<Int>, IntBinaryOperator {
     PLUS {
         override fun apply(t: Int, u: Int): Int = t + u
@@ -479,14 +479,14 @@ enum class IntArithmetics : BinaryOperator<Int>, IntBinaryOperator {
 
 ### 使用枚举常量
 Kotlin 中的枚举类具有用于列出定义的枚举常量并通过其名称获取枚举常量的综合方法。 这些方法的签名如下（假设枚举类的名称是EnumClass）：
-```
+```kotlin
 EnumClass.valueOf(value: String): EnumClass
 EnumClass.values(): Array<EnumClass>
 ```
 如果指定的名称与类中定义的任何枚举常量不匹配，则 `valueOf()` 方法将引发 `IllegalArgumentException`。
 
 可以使用 enumValues<T>() 和 enumValueOf<T>() 函数以泛型方式访问枚举类中的常量：
-```
+```kotlin
 enum class RGB { RED, GREEN, BLUE }
 
 inline fun <reified T : Enum<T>> printAllValues() {
@@ -496,7 +496,7 @@ inline fun <reified T : Enum<T>> printAllValues() {
 printAllValues<RGB>() // prints RED, GREEN, BLUE
 ```
 每个枚举常量都具有用于在枚举类声明中获取其名称和位置（从 0 开始）的属性：
-```
+```kotlin
 val name: String
 val ordinal: Int
 ```
@@ -511,12 +511,12 @@ val ordinal: Int
 为了解决这些问题，Kotlin 引入了一种特殊的类，称为内联类。 内联类是基于值的类的子集。 他们没有身份，只能持有值。
 
 要声明内联类，在类名之前使用 `value` 修饰符：
-```
+```kotlin
 value class Password(private val s: String)
 ```
 
 内联类必须具有在主构造器中初始化的**单个**属性。 在运行时，内联类的实例将使用这个单一属性表示 ：
-```
+```kotlin
 // No actual instantiation of class 'Password' happens
 // At runtime 'securePassword' contains just 'String'
 val securePassword = Password("Don't try this in production")
@@ -525,7 +525,7 @@ val securePassword = Password("Don't try this in production")
 
 ### 成员
 内联类支持常规类的一些功能。 特别是，它们可以声明属性和函数，并具有 `init` 块：
-```
+```kotlin
 value class Name(val s: String) {
     init {
         require(s.length > 0) { }
@@ -557,7 +557,7 @@ fun main() {
 这类似于如何将 Int 表示为原始 int 或包装器 Integer。
 
 Kotlin 编译器将更喜欢使用底层类型而不是包装器来生成最高性能和优化的代码。 但是，有时需要保留包装器。 根据经验，内联类在用作另一种类型时都会被装箱。
-```
+```kotlin
 interface I
 
 @JvmInline
@@ -586,7 +586,7 @@ fun main() {
 因为内联类既可以表示为基础值，也可以表示为包装器，因此引用相等对它们没有意义，因此被禁止。
 
 内联类也可以有一个泛型类型参数作为基础类型。 在这种情况下，编译器将其映射到 Any? 或者，通常是类型参数的上限。
-```
+```kotlin
 @JvmInline
 value class UserId<T>(val value: T)
 
@@ -595,7 +595,7 @@ fun compute(s: UserId<String>) {} // compiler generates fun compute-<hashcode>(s
 
 ### 重整
 由于内联类被编译为它们的底层类型，它可能会导致各种模糊的错误，例如意外的平台签名冲突：
-```
+```kotlin
 @JvmInline
 value class UInt(val x: Int)
 
@@ -620,7 +620,7 @@ object 表达式创建匿名类的对象，即未使用类声明显式声明的�
 对象表达式以 `object` 关键字开头。
 
 如果只需要一个没有任何重要超类型的对象，请将其成员写在对象后面的花括号中：
-```
+```kotlin
 val helloWorld = object {
     val hello = "Hello"
     val world = "World"
@@ -634,7 +634,7 @@ val helloWorld = object {
 如果超类型具有构造器，则将适当的构造器参数传递给它。 多个超类型可以指定为冒号后的逗号分隔列表。
 
 当匿名对象用作本地或私有类型但不是内联声明（函数或属性）时，它的所有成员都可以通过此函数或属性访问：
-```
+```kotlin
 class C {
     private fun getObject() = object {
         val x: String = "x"
@@ -651,7 +651,7 @@ class C {
 * 如果有多个声明的超类型，则显式声明的类型
 
 在所有这些情况下，添加到匿名对象中的成员都是不可访问的。 如果在函数或属性的实际类型中声明了被覆盖的成员，则它们是可访问的：
-```
+```kotlin
 interface A {
     fun funFromA() {}
 }
@@ -677,7 +677,7 @@ class C {
 }
 ```
 object 表达式中的代码可以从封闭范围访问变量：
-```
+```kotlin
 fun countClicks(window: JComponent) {
     var clickCount = 0
     var enterCount = 0
@@ -697,7 +697,7 @@ fun countClicks(window: JComponent) {
 
 ### object 声明
 单例模式在多种情况下很有用，而 Kotlin 使声明单例变得容易：
-```
+```kotlin
 object DataProviderManager {
     fun registerDataProvider(provider: DataProvider) {
         // ...
@@ -712,7 +712,7 @@ object DataProviderManager {
 对象声明的初始化是线程安全的，并在首次访问时完成。
 
 这样的 object 可以有超类：
-```
+```kotlin
 object DefaultListener : MouseAdapter() {
     override fun mouseClicked(e: MouseEvent) { ... }
 
@@ -728,7 +728,7 @@ object 声明不能是局部的（也就是说，它们不能直接嵌套在函�
 可以通过使用类名作为限定符简单地调用伴生对象的成员。
 
 伴随对象的名称可以省略，在这种情况下将使用名称 Companion：
-```
+```kotlin
 class MyClass {
     companion object { }
 }
@@ -741,7 +741,7 @@ val x = MyClass.Companion
 自己使用的类的名称（不是作为另一个名称的限定符）充当对类的伴随对象的引用（无论是否命名）：
 
 需要注意的是，即使伴随对象的成员在其他语言中看起来像静态成员，在运行时它们仍然是真实对象的实例成员，并且可以例如实现接口：
-```
+```kotlin
 interface Factory<T> {
     fun create(): T
 }

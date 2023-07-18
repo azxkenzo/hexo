@@ -44,7 +44,7 @@ Kotlin 还支持浮点数的传统表示法：
 * Float：123.5f / 123.5F
 
 可以使用下划线使数字常量更具可读性：
-```
+```kotlin
 val oneMillion = 1_000_000
 val creditCardNumber = 1234_5678_9012_3456L
 val socialSecurityNumber = 999_99_9999L
@@ -55,7 +55,7 @@ val bytes = 0b11010010_01101001_10010100_10010010
 ### JVM 上的数字表示
 在 JVM 平台上，数字存储为原始类型：int、double 等。 例外情况是创建可为空的数字引用（例如 Int? 或使用泛型。 在这些情况下，数字被装在 Java 类 Integer、Double 等中。
 
-```
+```kotlin
 val a: Int = 100
 val boxedA: Int? = a
 val anotherBoxedA: Int? = a
@@ -71,7 +71,7 @@ println(boxedB === anotherBoxedB) // false
 
 ### 显式数字转换
 由于表示方式不同，较小的类型不是较大类型的子类型。如果是这样，将遇到以下问题：
-```
+```kotlin
 // Hypothetical code, does not actually compile:
 val a: Int? = 1 // A boxed Int (java.lang.Integer)
 val b: Long? = a // Implicit conversion yields a boxed Long (java.lang.Long)
@@ -80,7 +80,7 @@ print(b == a) // Surprise! This prints "false" as Long's equals() checks whether
 因此，较小的类型不会隐式转换为较大的类型。 这意味着将 Byte 类型的值分配给 Int 变量需要显式转换。
 
 在许多情况下，不需要显式转换，因为类型是从上下文中推断出来的，并且算术运算会为适当的转换而重载，例如:
-```
+```kotlin
 val l = 1L + 3 // Long + Int => Long
 ```
 
@@ -88,7 +88,7 @@ val l = 1L + 3 // Long + Int => Long
 
 #### 整数除法
 整数之间的除法总是返回一个整数。 任何小数部分都将被丢弃。
-```
+```kotlin
 val x = 5 / 2
 //println(x == 2.5) // ERROR: Operator '==' cannot be applied to 'Int' and 'Double'
 println(x == 2)
@@ -98,7 +98,7 @@ println(x == 2)
 
 #### 位运算
 Kotlin 提供了一组对整数的按位运算。 它们直接使用数字表示的位在二进制级别上进行操作。 按位运算由可以以中缀形式调用的函数表示。 它们只能应用于 Int 和 Long：
-```
+```kotlin
 val x = (1 shl 2) and 0x000FF000
 ```
 
@@ -173,13 +173,13 @@ Kotlin 有两种类型的字符串字面量：
 
 #### 转义字符串
 转义字符串可以包含转义字符。
-```
+```kotlin
 val s = "Hello, world!\n"
 ```
 
 #### 原始字符串
 原始字符串可以包含换行符和任意文本。 它由三引号 (""") 分隔，不包含转义，并且可以包含换行符和任何其他字符：
-```
+```kotlin
 val text = """
     for (c in "foo")
         print(c)
@@ -193,7 +193,7 @@ val text = """
 字符串文字可能包含模板表达式——被评估的代码片段，其结果被连接到字符串中。 模板表达式以美元符号 ($) 开头，由以下任一名称组成。
 
 可以在原始字符串和转义字符串中使用模板。 要在允许作为标识符开头的任何符号之前在原始字符串（不支持反斜杠转义）中插入美元符号 $，请使用以下语法：
-```
+```kotlin
 val price = """
 ${'$'}_9.99
 """
@@ -202,7 +202,7 @@ ${'$'}_9.99
 
 ## 数组
 Kotlin 中的数组由 Array 类表示。 它具有 get() 和 set() 函数，这些函数通过运算符重载约定变成 [] 和 size 属性，以及其他有用的成员函数：
-```
+```kotlin
 class Array<T> private constructor() {
     val size: Int
     operator fun get(index: Int): T
@@ -252,14 +252,14 @@ UIntRange、UIntProgression、ULongRange 和 ULongProgression 类支持 UInt 和
 ### 使用案例
 无符号数的主要用例是利用整数的整个位范围来表示正值。
 例如，要表示不适合有符号类型的十六进制常量，例如 32 位 AARRGGBB 格式的颜色：
-```
+```kotlin
 data class Color(val representation: UInt)
 
 val yellow = Color(0xFFCC00CCu)
 ```
 
 可以使用无符号数来初始化字节数组，而无需显式 `toByte()` 字面量转换：
-```
+```kotlin
 val byteOrderMarkUtf8 = ubyteArrayOf(0xEFu, 0xBBu, 0xBFu)
 ```
 
@@ -274,7 +274,7 @@ val byteOrderMarkUtf8 = ubyteArrayOf(0xEFu, 0xBBu, 0xBFu)
 在大多数情况下，不需要在 Kotlin 中使用显式转换运算符，因为编译器会跟踪**不可变值**的 `is` 检查和显式转换，并在必要时自动插入（安全）转换。
 
 编译器足够聪明，知道如果否定检查导致返回，则强制转换是安全的：
-```
+```kotlin
 if (x !is String) return
 
 print(x.length) // x is automatically cast to String

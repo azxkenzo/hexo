@@ -42,7 +42,7 @@ MotionEvent 类提供了许多方法来查询 pointer 的位置和其他属性�
 
 ## 分发过程分析
 事件分发首先从 `Activity.dispatchTouchEvent()` 开始
-```
+```java
 public boolean dispatchTouchEvent(MotionEvent ev) {
     if (ev.getAction() == MotionEvent.ACTION_DOWN) {
         onUserInteraction();
@@ -54,13 +54,13 @@ public boolean dispatchTouchEvent(MotionEvent ev) {
 }
 ```
 这里，Activity 先调用 Window 的 `superDispatchTouchEvent()` 来处理事件
-```
+```java
 public boolean superDispatchTouchEvent(MotionEvent event) {
     return mDecor.superDispatchTouchEvent(event);
 }
 ```
 Window 把事件交给 DecorView 去处理
-```
+```java
 public boolean superDispatchTouchEvent(MotionEvent event) {
     return super.dispatchTouchEvent(event);
 }
@@ -68,7 +68,7 @@ public boolean superDispatchTouchEvent(MotionEvent event) {
 DecorView 调用父类也就是ViewGroup的 `dispatchTouchEvent()` 来处理事件。
 
 ### ViewGroup 的事件分发
-```
+```java
 public boolean dispatchTouchEvent(MotionEvent ev) {
     boolean handled = false;
     if (onFilterTouchEventForSecurity(ev)) { // 过滤触摸事件以应用安全策略。如果应分派事件，则为 True；如果应删除事件，则为 false。
@@ -252,7 +252,7 @@ public boolean dispatchTouchEvent(MotionEvent ev) {
 ```
 
 ### View 的事件分发
-```
+```java
 public boolean dispatchTouchEvent(MotionEvent event) {
     boolean result = false;
     
@@ -292,7 +292,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
 }
 ```
 如果设置了 OnTouchListener，就先调用 `OnTouchListener.onTouch()`，再判断是否需要调用 `onTouchEvent()`
-```
+```java
 public boolean onTouchEvent(MotionEvent event) {
     final float x = event.getX();
     final float y = event.getY();

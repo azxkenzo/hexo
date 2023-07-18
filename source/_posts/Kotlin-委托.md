@@ -8,7 +8,7 @@ tags: Kotlin
 委托模式已被证明是实现继承的一个很好的替代方案，并且 Kotlin 本身就支持它，需要零样板代码。
 
 Derived 类可以通过将其所有公共成员委托给指定对象来实现接口 Base：
-```
+```kotlin
 interface Base {
     fun print()
 }
@@ -28,7 +28,7 @@ Derived 的超类型列表中的 `by` 子句表示 `b` 将在内部存储在 Der
 
 ### 覆盖委托实现的接口成员
 但是请注意，以这种方式覆盖的成员不会从委托对象的成员中调用，委托对象只能访问其自己的接口成员实现：
-```
+```kotlin
 interface Base {
     val message: String
     fun print()
@@ -59,7 +59,7 @@ fun main() {
 * 将属性存储在 Map 中，而不是每个属性的单独字段。
 
 为了涵盖这些（和其他）情况，Kotlin 支持委托属性：
-```
+```kotlin
 class Example {
     var p: String by Delegate()
 }
@@ -67,7 +67,7 @@ class Example {
 
 语法为：`val/var <property name>: <Type> by <expression>`。 `by` 后面的表达式是一个委托，因为属性对应的 `get()`（和 `set()`）会被委托给它的 `getValue()` 和 `setValue()` 方法。
 属性委托不必实现接口，但它们必须提供 `getValue()` 函数（以及用于 vars 的 `setValue()`）。
-```
+```kotlin
 import kotlin.reflect.KProperty
 
 class Delegate {
@@ -108,7 +108,7 @@ Kotlin 标准库为几种有用的委托提供工厂方法。
 一个属性可以将它的 getter 和 setter 委托给另一个属性。 这种委派可用于顶层和类属性（成员和扩展）。 委托属性可以是：
 
 要将一个属性委托给另一个属性，请在委托名称中使用 `::` 限定符，例如 `this::delegate` 或 `MyClass::delegate`。
-```
+```kotlin
 var topLevelInt: Int = 0
 class ClassWithDelegate(val anotherClassInt: Int)
 
@@ -121,7 +121,7 @@ class MyClass(var memberInt: Int, val anotherClassInstance: ClassWithDelegate) {
 var MyClass.extDelegated: Int by ::topLevelInt
 ```
 这可能很有用，例如，当想以向后兼容的方式重命名属性时：引入新属性，使用 @Deprecated 注释对旧属性进行注释，然后委托其实现。
-```
+```kotlin
 class MyClass {
    var newName: Int = 0
    @Deprecated("Use 'newName' instead", ReplaceWith("newName"))
@@ -139,7 +139,7 @@ fun main() {
 ### 把属性存储在 map 中
 一个常见的用例是将属性值存储在 map 中。 这经常出现在诸如解析 JSON 或执行其他动态任务之类的应用程序中。
 在这种情况下，可以将 map 实例本身用作委托属性的委托。
-```
+```kotlin
 class User(val map: Map<String, Any?>) {
     val name: String by map
     val age: Int     by map
@@ -175,7 +175,7 @@ class User(val map: Map<String, Any?>) {
 在底层，Kotlin 编译器为某些类型的委托属性生成辅助属性，然后委托给它们。
 
 例如，对于属性 prop，它会生成隐藏属性 prop$delegate，而访问器的代码只是简单地委托给这个附加属性：
-```
+```kotlin
 class C {
     var prop: Type by MyDelegate()
 }

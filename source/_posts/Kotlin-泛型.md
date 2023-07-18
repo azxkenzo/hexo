@@ -7,17 +7,17 @@ tags: Kotlin
 [原文](https://kotlinlang.org/docs/generics.html)
 
 Kotlin 中的类可以有类型参数，就像在 Java 中一样：
-```
+```kotlin
 class Box<T>(t: T) {
     var value = t
 }
 ```
 要创建此类的实例，只需提供类型参数：
-```
+```kotlin
 val box: Box<Int> = Box<Int>(1)
 ```
 但是如果参数可以推断出来，例如，从构造函数参数，可以省略类型参数：
-```
+```kotlin
 val box = Box(1) // 1 has type Int, so the compiler figures out that it is Box<Int>
 ```
 

@@ -161,7 +161,7 @@ XML 文件由一个作为根节点的 `<animation-list>` 元素和一系列子 `
 
 如果将此 XML 保存为项目的 `res/drawable/` 目录中的 `rocket_thrust.xml`，则可以将其作为 background 图像添加到 `View`，然后调用 `start()` 使其播放。 
 下面是一个示例，其中将动画添加到 `ImageView`，然后在触摸屏幕时进行动画处理：
-```
+```kotlin
 val rocketImage = findViewById<ImageView>(R.id.rocket_image).apply {
         setBackgroundResource(R.drawable.rocket_thrust)
         rocketAnimation = background as AnimationDrawable
@@ -184,7 +184,7 @@ Animated vector drawables 可以为 `<group>` 和 `<path>` 元素的属性设置
 当您定义要设置动画的 vector drawable 时，请使用 `android:name` 属性为 group 和 path 分配唯一的名称，以便您可以从 animator 定义中引用它们。
 
 animated vector drawable 定义通过 name 引用 vector drawable 中的 group 和 path：
-```
+```xml
 <animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
   android:drawable="@drawable/vectordrawable" >
     <target
@@ -196,7 +196,7 @@ animated vector drawable 定义通过 name 引用 vector drawable 中的 group �
 </animated-vector>
 ```
 动画定义表示 `ObjectAnimator` 或 `AnimatorSet` 对象。 此示例中的第一个 animator 将目标组旋转 360 度：
-```
+```xml
 <objectAnimator
     android:duration="6000"
     android:propertyName="rotation"
@@ -248,7 +248,7 @@ Crossfade(交叉淡入淡出)动画（也称为溶解）逐渐淡出一个 `View
 2. 对于淡入的 view，将其 alpha 值从 `0` 动画化到 `1`。对于淡出的 view，将 alpha 值从 `1` 动画化到 `0`。
 3. 在 `Animator.AnimatorListener` 中使用 `onAnimationEnd()`，将淡出的 view 的可见性设置为 `GONE`。 尽管 alpha 值为 `0`，但将 view 的可见性设置为 `GONE` 可以防止 view 占用布局空间并在布局计算中忽略它，从而加快处理速度。
 
-```
+```kotlin
 private fun crossfade() {
     contentView.apply {
         // Set the content view to 0% opacity but visible, so that it is visible
@@ -285,7 +285,7 @@ private fun crossfade() {
 
 card_flip_left_in.xml
 
-```
+```xml
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Before rotating, immediately set the alpha to 0. -->
     <objectAnimator
@@ -314,7 +314,7 @@ card_flip_left_in.xml
 
 card_flip_left_out.xml
 
-```
+```xml
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Rotate. -->
     <objectAnimator
@@ -336,7 +336,7 @@ card_flip_left_out.xml
 
 card_flip_right_in.xml
 
-```
+```xml
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Before rotating, immediately set the alpha to 0. -->
     <objectAnimator
@@ -365,7 +365,7 @@ card_flip_right_in.xml
 
 card_flip_right_out.xml
 
-```
+```xml
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Rotate. -->
     <objectAnimator
@@ -403,7 +403,7 @@ card_flip_right_out.xml
 * 将当前显示的 fragment 替换为新 fragment，并使用创建的自定义动画为该事件设置动画。
 * 将先前显示的 fragment添加到 fragment 后堆栈中，以便当用户按下“后退”按钮时，卡片会翻转回来。
 
-```
+```kotlin
 private fun flipCard() {
     if (showingBack) {
         supportFragmentManager.popBackStack()

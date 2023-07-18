@@ -28,15 +28,15 @@ tags: Android
 每组更改作为一个单独的单元一起提交，称为  fragment Transaction。
 
 当用户按下返回按钮，或者当调用  fragment Manager.popBackStack() 时，最顶层的 fragment 事务会从堆栈中弹出。
-如果堆栈上没有更多的 fragment 事务，并且您没有使用子 fragment ，则返回事件会冒泡到activity。
+如果堆栈上没有更多的 fragment 事务，并且你没有使用子 fragment ，则返回事件会冒泡到activity。
 
 在transaction上调用 addToBackStack() 时，请注意transaction可以包含任意数量的操作，例如添加多个 fragment 、替换多个容器中的 fragment 等。
 当返回栈被弹出时，所有这些操作都被反转为单个原子操作。如果在调用 popBackStack() 之前提交了其他transaction，并且没有对transaction使用 addToBackStack()，则这些操作不会被撤消。
 
 ## 执行 transaction
 ```kotlin
-support fragment Manager.commit {
-   replace<Example fragment >(R.id. fragment _container)
+supportfragmentManager.commit {
+   replace<Examplefragment>(R.id.fragment_container)
    setReorderingAllowed(true)
    addToBackStack("name") // name can be null
 }
@@ -89,10 +89,10 @@ addToBackStack() 调用中提供的可选名称使能够使用 popBackStack() �
 
  fragment Factory 的简单实现可能类似于以下内容：
 ```kotlin
-class My fragment Factory(val repository: DessertsRepository) :  fragment Factory() {
-    override fun instantiate(classLoader: ClassLoader, className: String):  fragment  =
-        when (load fragment Class(classLoader, className)) {
-            Desserts fragment ::class.java -> Desserts fragment (repository)
+class MyFragmentFactory(val repository: DessertsRepository) : FragmentFactory() {
+    override fun instantiate(classLoader: ClassLoader, className: String): Fragment  =
+        when (loadFragmentClass(classLoader, className)) {
+            DessertsFragment::class.java -> DessertsFragment(repository)
             else -> super.instantiate(classLoader, className)
         }
 }
@@ -103,7 +103,7 @@ class My fragment Factory(val repository: DessertsRepository) :  fragment Factor
 ```kotlin
 class MealActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        support fragment Manager. fragment Factory = My fragment Factory(DessertsRepository.getInstance())
+        supportFragmentManager.fragmentFactory = MyFragmentFactory(DessertsRepository.getInstance())
         super.onCreate(savedInstanceState)
     }
 }
@@ -267,7 +267,7 @@ view生命周期所有者也会向其观察者发出 ON_CREATE 事件。 在这�
 首先，需要为进入和退出效果创建animation，这些动画在导航到新 fragment 时运行。 可以将animation定义为补间动画资源。 这些资源允许定义 fragment 在动画期间应如何旋转、拉伸、淡化和移动。
 
 这些动画可以在 res/anim 目录中定义：
-```
+```xml
 <!-- res/anim/fade_out.xml -->
 <?xml version="1.0" encoding="utf-8"?>
 <alpha xmlns:android="http://schemas.android.com/apk/res/android"
@@ -277,7 +277,7 @@ view生命周期所有者也会向其观察者发出 ON_CREATE 事件。 在这�
     android:toAlpha="0" />
 ```
 
-```
+```xml
 <!-- res/anim/slide_in.xml -->
 <?xml version="1.0" encoding="utf-8"?>
 <translate xmlns:android="http://schemas.android.com/apk/res/android"
@@ -294,15 +294,15 @@ view生命周期所有者也会向其观察者发出 ON_CREATE 事件。 在这�
 定义动画后，通过调用 ` fragment Transaction.setCustomAnimations()` 来使用它们，并通过资源 ID 传入动画资源，如下例所示: 
 
 ```kotlin
-val  fragment  =  fragment B()
-support fragment Manager.commit {
+val fragment = FragmentB()
+supportFragmentManager.commit {
     setCustomAnimations(
         enter = R.anim.slide_in,
         exit = R.anim.fade_out,
         popEnter = R.anim.fade_in,
         popExit = R.anim.slide_out
     )
-    replace(R.id. fragment _container,  fragment )
+    replace(R.id.fragment_container, fragment)
     addToBackStack(null)
 }
 ```
@@ -328,7 +328,7 @@ support fragment Manager.commit {
 一旦定义了transition，通过在进入 fragment 上调用 `setEnterTransition()` 和在退出 fragment 上调用 `setExitTransition()` 来应用它们，通过它们的资源 ID 传递inflated transition资源，如以下示例所示：
 
 ```kotlin
-class  fragment A :  fragment () {
+class FragmentA : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val inflater = TransitionInflater.from(requireContext())
@@ -336,7 +336,7 @@ class  fragment A :  fragment () {
     }
 }
 
-class  fragment B :  fragment () {
+class FragmentB : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val inflater = TransitionInflater.from(requireContext())
@@ -361,7 +361,7 @@ class  fragment B :  fragment () {
 使用 `ViewCompat.setTransitionName()` 为每个 fragment 布局中的共享元素设置transition名称.
 
 ```kotlin
-class  fragment A :  fragment () {
+class FragmentA : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ...
         val itemImageView = view.findViewById<ImageView>(R.id.item_image)
@@ -369,7 +369,7 @@ class  fragment A :  fragment () {
     }
 }
 
-class  fragment B :  fragment () {
+class FragmentB : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ...
         val heroImageView = view.findViewById<ImageView>(R.id.hero_image)
@@ -382,8 +382,8 @@ class  fragment B :  fragment () {
 通过调用 ` fragment Transaction.addSharedElement()` 将每个共享元素添加到  fragment Transaction，并在下一个 fragment 中传入view和相应view的transition名称，如下例所示：
 
 ```kotlin
-val  fragment  =  fragment B()
-support fragment Manager.commit {
+val fragment = FragmentB()
+supportFragmentManager.commit {
     setCustomAnimations(...)
     addSharedElement(itemImageView, “hero_image”)
     replace(R.id. fragment _container,  fragment )
@@ -395,7 +395,7 @@ support fragment Manager.commit {
 在  fragment  的 onCreate() 方法中调用 ` fragment .setSharedElementEnterTransition()`，如下例所示：
 
 ```kotlin
-class  fragment B :  fragment () {
+class FragmentB : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedElementEnterTransition = TransitionInflater.from(requireContext())
@@ -419,7 +419,7 @@ class  fragment B :  fragment () {
 ## 推迟 transition
 在某些情况下，可能需要将 fragment  transition推迟一小段时间。 例如，可能需要等到进入 fragment 中的所有view都被测量和布局，以便 Android 可以准确地捕获它们的开始和结束状态以进行转换。
 
-此外，您的转换可能需要推迟到加载了一些必要的数据。 例如，可能需要等到为共享元素加载图像。 否则，如果图像在过渡期间或之后完成加载，则过渡可能会不和谐。
+此外，你的转换可能需要推迟到加载了一些必要的数据。 例如，可能需要等到为共享元素加载图像。 否则，如果图像在过渡期间或之后完成加载，则过渡可能会不和谐。
 
 要推迟转换，必须首先确保 fragment  transaction允许对 fragment 状态更改进行重新排序。 要允许重新排序 fragment 状态更改，请调用 ` fragment Transaction.setReorderingAllowed()`。
 
@@ -428,7 +428,7 @@ class  fragment B :  fragment () {
 加载数据并准备好开始transition后，调用 ` fragment .startPostponedEnterTransition()`。 以下示例使用 Glide 库将图像加载到共享的 ImageView 中，将相应的transition推迟到图像加载完成。
 
 ```kotlin
-class  fragment B :  fragment () {
+class FragmentB : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ...
         Glide.with(this)
@@ -516,7 +516,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: ItemViewModel by viewModels()
 }
 
-class List fragment  :  fragment () {
+class ListFragment : Fragment() {
     // Using the activityViewModels() Kotlin property delegate from the
     //  fragment -ktx artifact to retrieve the ViewModel in the activity scope
     private val viewModel: ItemViewModel by activityViewModels()
@@ -537,16 +537,16 @@ class List fragment  :  fragment () {
 要在这些  fragment  之间共享数据，请将父  fragment  用作 ViewModel 范围。
 
 ```kotlin
-class List fragment :  fragment () {
+class ListFragment : Fragment() {
     // Using the viewModels() Kotlin property delegate from the  fragment -ktx
     // artifact to retrieve the ViewModel
     private val viewModel: ListViewModel by viewModels()
 }
 
-class Child fragment :  fragment () {
+class ChildFragment : Fragment() {
     // Using the viewModels() Kotlin property delegate from the  fragment -ktx
     // artifact to retrieve the ViewModel using the parent  fragment 's scope
-    private val viewModel: ListViewModel by viewModels({requireParent fragment ()})
+    private val viewModel: ListViewModel by viewModels({requireParentFragment()})
     ...
 }
 ```
@@ -564,7 +564,7 @@ class Child fragment :  fragment () {
 override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     // Use the Kotlin extension in the  fragment -ktx artifact
-    set fragment ResultListener("requestKey") { requestKey, bundle ->
+    setFragmentResultListener("requestKey") { requestKey, bundle ->
         // We use a String here, but any type that can be put in a Bundle is supported
         val result = bundle.getString("bundleKey")
         // Do something with the result
@@ -579,7 +579,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 button.setOnClickListener {
     val result = "result"
     // Use the Kotlin extension in the  fragment -ktx artifact
-    set fragment Result("requestKey", bundleOf("bundleKey" to result))
+    setFragmentResult("requestKey", bundleOf("bundleKey" to result))
 }
 ```
 

@@ -80,7 +80,7 @@ public void onInit() {
 ```
 
 #### init()
-```java
+```kotlin
 fun init(@MediaLocation location: Int) {
     if (inited) {
         return
@@ -137,7 +137,7 @@ fun init(@MediaLocation location: Int) {
 
 
 #### listener
-```
+```kotlin
 private val listener =
     object : MediaDataManager.Listener {
         override fun onMediaDataLoaded(
@@ -173,7 +173,7 @@ private val listener =
     }
 ```
 
-```
+```kotlin
 fun updateViewVisibility() {
     state.visible =
         if (showsOnlyActiveMedia) {
@@ -211,7 +211,7 @@ protected void onViewAttached() {
 
 ## MediaDataManager
 初始化：
-```
+```kotlin
     init {
         dumpManager.registerDumpable(TAG, this)
 
@@ -292,7 +292,7 @@ protected void onViewAttached() {
 
 
 ### 数据加载过程
-```
+```kotlin
 fun onNotificationAdded(key: String, sbn: StatusBarNotification) {
     if (useQsMediaPlayer && isMediaNotification(sbn)) {
         var logEvent = false
@@ -317,7 +317,7 @@ fun onNotificationAdded(key: String, sbn: StatusBarNotification) {
 ```
 当有新 Notification 添加时，检查 `useQsMediaPlayer` 和 `isMediaNotification()`，然后调用 `loadMediaData()`
 
-```
+```kotlin
 private fun loadMediaData(
     key: String,
     sbn: StatusBarNotification,
@@ -328,7 +328,7 @@ private fun loadMediaData(
 }
 ```
 backgroundExecutor 中执行 `loadMediaDataInBg()`
-```
+```kotlin
     fun loadMediaDataInBg(
         key: String,
         sbn: StatusBarNotification,
@@ -436,7 +436,7 @@ backgroundExecutor 中执行 `loadMediaDataInBg()`
     }
 ```
 构造好 `MediaData` 后，在 foregroundExecutor 中调用 `onMediaDataLoaded()`
-```
+```kotlin
 fun onMediaDataLoaded(key: String, oldKey: String?, data: MediaData) =
     traceSection("MediaDataManager#onMediaDataLoaded") {
         Assert.isMainThread()
@@ -448,7 +448,7 @@ fun onMediaDataLoaded(key: String, oldKey: String?, data: MediaData) =
     }
 ```
 
-```
+```kotlin
 private fun notifyMediaDataLoaded(key: String, oldKey: String?, info: MediaData) {
     internalListeners.forEach { it.onMediaDataLoaded(key, oldKey, info) }
 }
@@ -457,13 +457,13 @@ private fun notifyMediaDataLoaded(key: String, oldKey: String?, info: MediaData)
 ## MediaHierarchyManager
 
 ### mediaFrame
-```
+```kotlin
 private val mediaFrame
     get() = mediaCarouselController.mediaFrame
 ```
 
 #### applyState()
-```
+```kotlin
 private fun applyState(
     bounds: Rect,
     alpha: Float,
@@ -502,7 +502,7 @@ private fun applyState(
 调用 `updateHostAttachment()` 把 mediaFrame 添加到 hostView 中
 
 #### updateHostAttachment()
-```
+```kotlin
 private fun updateHostAttachment() =
     traceSection("MediaHierarchyManager#updateHostAttachment") {
         var newLocation = resolveLocationForFading()
@@ -559,7 +559,7 @@ private fun updateHostAttachment() =
 ## MediaCarouselController
 
 ### mediaFrame
-```
+```kotlin
 mediaFrame = inflateMediaCarousel()
 
 private fun inflateMediaCarousel(): ViewGroup {
@@ -576,7 +576,7 @@ private fun inflateMediaCarousel(): ViewGroup {
 mediaFrame 使用的布局是 `R.layout.media_carousel`
 
 ### 初始化
-```
+```kotlin
 init {
 
     mediaFrame = inflateMediaCarousel()
@@ -661,7 +661,7 @@ init {
 
 
 #### addOrUpdatePlayer()
-```
+```kotlin
     private fun addOrUpdatePlayer(
         key: String,
         oldKey: String?,
@@ -745,7 +745,7 @@ init {
 
 
 #### reorderAllPlayers
-```
+```kotlin
 private fun reorderAllPlayers(
     previousVisiblePlayerKey: MediaPlayerData.MediaSortKey?,
     key: String? = null
@@ -782,7 +782,7 @@ private fun reorderAllPlayers(
 
 ## MediaViewHolder
 
-```
+```kotlin
 /** Holder class for media player view */
 class MediaViewHolder constructor(itemView: View) {
     val player = itemView as TransitionLayout
@@ -791,7 +791,7 @@ class MediaViewHolder constructor(itemView: View) {
 ```
 
 ### create()
-```
+```kotlin
 @JvmStatic
 fun create(inflater: LayoutInflater, parent: ViewGroup): MediaViewHolder {
     val mediaView = inflater.inflate(R.layout.media_session_view, parent, false)

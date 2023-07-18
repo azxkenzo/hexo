@@ -551,7 +551,7 @@ ViewRootImpl.`performTraversals()` 中，
 
 在 `measureHierarchy()` 中，
 1. 调用 `getRootMeasureSpec()`， 计算出 Window 中 root view 的 measure spec。这一步会将 Dialog 和 其他情况分开处理。看下 getRootMeasureSpec是怎么做的：
-    ```
+    ```java
     private static int getRootMeasureSpec(int windowSize, int measurement, int privateFlags) {
         int measureSpec;
         final int rootDimension = (privateFlags & PRIVATE_FLAG_LAYOUT_SIZE_EXTENDED_BY_CUTOUT) != 0
@@ -595,7 +595,7 @@ ViewRootImpl.`performTraversals()` 中，
 4. 遍历 `mMatchParentChildren` 中保存的子view，对其进行重新测量
 
 `measureChildWithMargins()`是怎么做的：
-```
+```java
 protected void measureChildWithMargins(View child,
         int parentWidthMeasureSpec, int widthUsed,
         int parentHeightMeasureSpec, int heightUsed) {
@@ -612,7 +612,7 @@ protected void measureChildWithMargins(View child,
 }
 ```
 调用 `getChildMeasureSpec()` 计算出 子View 的 MeasureSpec，然后调用 `measure()` 来测量子view。`getChildMeasureSpec()` 是如何计算子view的 MeasureSpec 的：
-```
+```java
 public static int getChildMeasureSpec(int spec, int padding, int childDimension) {
     int specMode = MeasureSpec.getMode(spec);
     int specSize = MeasureSpec.getSize(spec);
@@ -684,7 +684,7 @@ public static int getChildMeasureSpec(int spec, int padding, int childDimension)
 
 
 在测量完所有子View并计算出最大宽高后，就会调用 `resolveSizeAndState()` 计算出自身的大小，看下是怎么做的：
-```
+```java
 public static int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
     final int specMode = MeasureSpec.getMode(measureSpec);
     final int specSize = MeasureSpec.getSize(measureSpec);

@@ -6,7 +6,7 @@ tags: Kotlin
 
 ## 类引用
 最基本的反射功能是获取对 Kotlin 类的运行时引用。 要获取对静态已知的 Kotlin 类的引用，可以使用类字面量语法：
-```
+```kotlin
 val c = MyClass::class
 ```
 该引用是 KClass 类型值。
@@ -23,7 +23,7 @@ Kotlin 类引用与 Java 类引用不同。 要获取 Java 类引用，请在 KC
 
 ### 函数引用
 可以将函数用作函数类型值，即将它传递给另一个函数。 为此，请使用 `::` 运算符：
-```
+```kotlin
 val numbers = listOf(1, 2, 3)
 println(numbers.filter(::isOdd))
 ```

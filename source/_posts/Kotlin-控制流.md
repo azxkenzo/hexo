@@ -37,7 +37,7 @@ when 既可以用作表达式，也可以用作语句。 如果用作表达式�
 when 也可以用作 if-else if 链的替代品。 如果没有提供参数，则分支条件只是布尔表达式，当条件为真时执行分支。
 
 可以使用以下语法在变量中捕获主题：
-```
+```kotlin
 fun Request.getBody() =
     when (val response = executeRequest()) {
         is Success -> response.body
@@ -47,7 +47,7 @@ fun Request.getBody() =
 
 ### for 循环
 for 循环遍历任何提供迭代器的东西。
-```
+```kotlin
 for (item in collection) print(item)
 ```
 
@@ -61,13 +61,13 @@ for 遍历任何提供迭代器的东西。 这意味着它：
 range 或数组上的 for 循环被编译为不创建迭代器对象的基于索引的循环。
 
 如果想遍历一个带有索引的数组或列表，可以这样做：
-```
+```kotlin
 for (i in array.indices) {
     println(array[i])
 }
 ```
 或者，可以使用 withIndex 库函数：
-```
+```kotlin
 for ((index, value) in array.withIndex()) {
     println("the element at $index is $value")
 }
@@ -84,14 +84,14 @@ Kotlin 有三种结构跳转表达式：
 * continue 进入最近的封闭循环的下一步。
 
 所有这些表达式都可以用作更大表达式的一部分：
-```
+```kotlin
 val s = person.name ?: return
 ```
 这些表达式的类型是 Nothing 类型。
 
 ### Break 和 continue 到 labels
 Kotlin 中的任何表达式都可以用标签进行标记。 标签的形式为标识符后跟 @ 符号，例如 abc@ 或 fooBar@。 要标记表达式，只需在其前面添加一个标签。
-```
+```kotlin
 loop@ for (i in 1..100) {
     for (j in 1..100) {
         if (...) break@loop
@@ -101,7 +101,7 @@ loop@ for (i in 1..100) {
 
 ### Return to label
 在 Kotlin 中，可以使用函数字面量、局部函数和对象表达式来嵌套函数。 合格的 return 允许从外部函数返回。 最重要的用例是从 lambda 表达式返回。
-```
+```kotlin
 fun foo() {
     listOf(1, 2, 3, 4, 5).forEach {
         if (it == 3) return // non-local return directly to the caller of foo()
@@ -111,7 +111,7 @@ fun foo() {
 }
 ```
 注意，只有传递给内联函数的 lambda 表达式才支持此类非本地返回。 要从 lambda 表达式返回，请将其标记并限定返回：
-```
+```kotlin
 fun foo() {
     listOf(1, 2, 3, 4, 5).forEach lit@{
         if (it == 3) return@lit // local return to the caller of the lambda - the forEach loop
@@ -121,7 +121,7 @@ fun foo() {
 }
 ```
 通常使用隐式标签更方便，因为这样的标签与传递 lambda 的函数具有相同的名称。
-```
+```kotlin
 fun foo() {
     listOf(1, 2, 3, 4, 5).forEach {
         if (it == 3) return@forEach // local return to the caller of the lambda - the forEach loop
@@ -135,7 +135,7 @@ fun foo() {
 请注意，在前面三个示例中使用本地返回类似于在常规循环中使用 `continue`。
 
 break 没有直接的等价物，但可以通过添加另一个嵌套 lambda 并从其非本地返回来模拟它：
-```
+```kotlin
 fun foo() {
     run loop@{
         listOf(1, 2, 3, 4, 5).forEach {
@@ -148,7 +148,7 @@ fun foo() {
 ```
 
 当返回值时，解析器优先考虑合格的返回：
-```
+```kotlin
 return@a 1
 ```
 这意味着“在标签 @a 处返回 1”，而不是“返回标签表达式 (@a 1)”。
@@ -170,20 +170,20 @@ Kotlin does not have checked exceptions.
 
 ### Nothing 类型
 `throw` 是 Kotlin 中的一个表达式，因此可以使用它，例如，作为 Elvis 表达式的一部分：
-```
+```kotlin
 val s = person.name ?: throw IllegalArgumentException("Name required")
 ```
 `throw` 表达式的类型为 `Nothing`。 此类型没有值，用于标记永远无法到达的代码位置。 在自己的代码中，可以使用 Nothing 来标记永远不会返回的函数。
 
 当调用这个函数时，编译器会知道在调用之后执行不会继续。
-```
+```kotlin
 val s = person.name ?: fail("Name required")
 println(s)     // 's' is known to be initialized at this point
 ```
 
 在处理类型推断时，也可能会遇到这种类型。 这种类型的可空变体 `Nothing?` 恰好有一个可能的值，即 `null`。 
 如果使用 `null` 来初始化推断类型的值，并且没有其他信息可用于确定更具体的类型，编译器将推断 `Nothing?` 类型：
-```
+```kotlin
 val x = null           // 'x' has type `Nothing?`
 val l = listOf(null)   // 'l' has type `List<Nothing?>
 ```

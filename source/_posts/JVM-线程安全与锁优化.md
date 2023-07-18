@@ -29,7 +29,7 @@ Java语言中，如果多线程共享的数据是一个基本数据类型，那�
 
 如果说 java.util.Vector 是一个线程安全的容器，相信对此都不会有异议，因为它的 add()、get() 和 size() 等方法都是被 synchronized 修饰的，尽管这样效率不高，但保证了具备原子性、可见性和有序性。不过，即使它所有的方法都被修饰成 synchronized，也不意味着调用它的时候就永远不再需要同步手段了，看下面测试带代码。
 
-```
+```java
     private static Vector<Integer> vector = new Vector<>();
 
     public static void main(String[] args) {
@@ -67,7 +67,7 @@ Java语言中，如果多线程共享的数据是一个基本数据类型，那�
 很明显，尽管这里使用到的 Vector 的 get()、remove() 和 size() 都是同步的，但是在多线程的环境中，如果不在方法调用端做额外的同步措施，使用这段代码仍然是不安全的。因为如果另一个线程恰好在错误的时间里删除了一个元素，导致序号 i 已经不再可用，再用 i 访问数组就会抛出异常。
 如果要保证这段代码能正确执行下去，就不得不把 removeThread 和 printThread 的定义改成如下所示这样。
 
-```
+```java
     Thread removeThread = new Thread(new Runnable() {
         @Override
         public void run() {

@@ -46,7 +46,7 @@ Java 虚拟机实现时必须保证下面提及的每一种操作都是原子的
 关于 volatile 变量的可见性，经常会被开发人员误解，他们会误以为下面的描述是正确的：“volatile 变量对所有线程是立即可见的，对 volatile 变量的所有写操作都能立刻反映到其他线程之中。换句话说，volatile 变量在各个线程中是一致的，所以基于 volatile 变量的运算在并发下是线程安全的”。
 这句话的论据部分并没有错，但是由其论据并不能得出“基于 volatile 变量的运算在并发下是线程安全的”这样的结论。volatile 变量在各个线程的工作内存中是不存在一致性问题的（从物理存储的角度看，各个线程的工作内存中 volatile 变量也可以存在不一致的情况，但由于每次使用之前都要先刷新，执行引擎看不到不一致的情况，因此可以认为不存在不一致问题），
 但是 Java 里面的运算操作符并非原子操作，这导致 volatile 变量的运算在并发下一样是不安全的。
-```
+```java
 class VolatileTest {
     public static volatile int race = 0;
     
@@ -103,7 +103,7 @@ public static void increase();
 **使用 volatile 变量的第二个语义是禁止指令重排序优化**，普通的变量仅会保证在该方法的执行过程中所有依赖赋值结果的地方都能获取到正确的结果，而不能保证变量赋值操作的顺序与程序代码中的执行顺序一致。因为在同一个线程的方法执行过程中无法感知到这点，这就是 Java 内存模型中描述的所谓“线程内表现为串行的语义”。
 
 通过一个例子来看看为何指令重排序会干扰程序的并发执行。
-```
+```java
 Map configOptions;
 char[] configText;
 // 此变量必须定义为volatile
@@ -128,7 +128,7 @@ doSomethingWithConfig();
 这样在线程B中使用配置信息的代码就可能出现错误，而 volatile 关键字可以避免此类情况的发生。
 
 再举一个可以实际操作运行的例子来分析 volatile 关键字是如何禁止指令重排序优化的。以下代码所示的是一段标准的双锁检测（DCL）单例代码，观察加入 volatile 和 未加入 volatile 关键字时所生成的汇编代码的差别。
-```
+```java
 public class Singleton {
     private volatile static Singleton instance;
     

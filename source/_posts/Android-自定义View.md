@@ -12,7 +12,7 @@ tags: Android
 * 将检索到的属性值应用于 View。
 
 要定义自定义属性，将 `<declare-styleable>` 资源添加到项目中。 通常将这些资源放入 `res/values/attrs.xml` 文件中。 以下是 attrs.xml 文件的示例：
-```
+```xml
 <resources>
    <declare-styleable name="PieChart">
        <attr name="showText" format="boolean" />
@@ -29,7 +29,7 @@ tags: Android
 一旦定义了自定义的 attribute，就可以像使用内置 attribute 一样在布局 XML 文件中使用它们。 
 唯一的区别是自定义 attribute 属于不同的命名空间。 它们不属于 `http://schemas.android.com/apk/res/android` 命名空间，
 而是属于 `http://schemas.android.com/apk/res/[你的包名]` 例如，下面是如何使用为 PieChart 定义的属性：
-```
+```xml
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
    xmlns:custom="http://schemas.android.com/apk/res-auto">
@@ -84,7 +84,7 @@ android.graphics 框架将绘图分为两个区域：
 `onSizeChanged()` 会在 View 首次分配大小时调用，如果 View 大小因任何原因发生更改，则会再次调用。 在 `onSizeChanged()` 中计算与 View 大小相关的位置、尺寸和任何其他值，而不是每次绘制时都重新计算它们。 在 PieChart 示例中，onSizeChanged() 是 PieChart 视图计算饼图边界矩形以及文本标签和其他可视元素的相对位置的地方。
 
 当 View 分配了一个大小时，布局管理器假定该大小包括 View 的所有填充。 计算 View 大小时必须处理填充值。 下面是 PieChart.onSizeChanged() 的一个片段，展示了如何做到这一点：
-```
+```kotlin
 // Account for padding
 var xpad = (paddingLeft + paddingRight).toFloat()
 val ypad = (paddingTop + paddingBottom).toFloat()

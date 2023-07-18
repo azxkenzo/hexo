@@ -57,7 +57,7 @@ Grid 具有与 list 相同的强大 API 功能，并且它们还使用非常相�
 
 ## Item animations
 如果使用过 RecyclerView 组件，就会知道它会自动为 item 更改设置动画。 lazy 布局为 item 重新排序提供了相同的功能。 API 很简单 —— 只需将 `animateItemPlacement` modifier 设置为 item 内容：
-```
+```kotlin
 LazyColumn {
     items(books, key = { it.id }) {
         Row(Modifier.animateItemPlacement()) {
@@ -68,7 +68,7 @@ LazyColumn {
 ```
 
 如果需要，也可以提供自定义动画规范：
-```
+```kotlin
 LazyColumn {
     items(books, key = { it.id }) {
         Row(Modifier.animateItemPlacement(
@@ -89,7 +89,7 @@ LazyColumn {
 “Sticky header”模式在显示分组数据列表时很有用。
 
 要使用 `LazyColumn` 实现 Sticky header，可以使用实验性的 `stickyHeader()` 函数，提供标头内容：
-```
+```kotlin
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListWithHeader(items: List<Item>) {
@@ -106,7 +106,7 @@ fun ListWithHeader(items: List<Item>) {
 ```
 
 要实现具有多个标题的列表，可以这样做：
-```
+```kotlin
 // TODO: This ideally would be done in the ViewModel
 val grouped = contacts.groupBy { it.firstName[0] }
 
@@ -129,7 +129,7 @@ fun ContactsList(grouped: Map<Char, List<Contact>>) {
 
 ## Reacting to scroll position
 许多应用程序需要做出反应并监听滚动位置和 item 布局的变化。 Lazy 组件通过提升 `LazyListState` 来支持此用例：
-```
+```kotlin
 @Composable
 fun MessageList(messages: List<Message>) {
     // Remember our own LazyListState
@@ -145,7 +145,7 @@ fun MessageList(messages: List<Message>) {
 对于简单的用例，应用程序通常只需要知道第一个可见 item 的信息。 为此 `LazyListState` 提供了 `firstVisibleItemIndex` 和 `firstVisibleItemScrollOffset` 属性。
 
 如果使用基于用户是否滚动过第一项来显示和隐藏按钮的示例：
-```
+```kotlin
 @OptIn(ExperimentalAnimationApi::class) // AnimatedVisibility
 @Composable
 fun MessageList(messages: List<Message>) {
@@ -174,7 +174,7 @@ fun MessageList(messages: List<Message>) {
 
 当需要更新其他 UI composable 时，直接在 composition 中读取状态很有用，但也存在不需要在同一组合中处理事件的情况。 
 一个常见的例子是在用户滚动到某个点后发送一个分析事件。 为了有效地处理这个问题，可以使用 `snapshotFlow()`：
-```
+```kotlin
 val listState = rememberLazyListState()
 
 LazyColumn(state = listState) {
@@ -200,7 +200,7 @@ LaunchedEffect(listState) {
 `scrollToItem()` “立即”捕捉滚动位置，`animateScrollToItem()` 使用动画滚动（也称为平滑滚动）
 
 注意： `scrollToItem()` 和 `animateScrollToItem()` 都是挂起函数，这意味着需要在协程中调用它们。
-```
+```kotlin
 @Composable
 fun MessageList(messages: List<Message>) {
     val listState = rememberLazyListState()
@@ -240,7 +240,7 @@ fun MessageList(messages: List<Message>) {
 
 ### Beware of putting multiple elements in one item
 在此示例中，第二项 lambda 在一个块中发出 2 个项目：
-```
+```kotlin
 LazyVerticalGrid(
     // ...
 ) {
@@ -264,7 +264,7 @@ lazy 布局将按预期处理这一问题 —— 它们将一个接一个地布�
 通常 lazy 列表有很多 item，它们占用的空间超过滚动容器的大小。 但是，当列表中填充的 item 很少时，该设计可能会对这些 item 在视口中的定位方式有更具体的要求。
 
 为此，可以使用自定义垂直 `Arrangement` 并将其传递给 `LazyColumn`。 在下面的例子中，`TopWithFooter` 对象只需要实现 `arrange` 方法即可。 首先，它将一个接一个地定位 item。 其次，如果总使用高度低于视口高度，它会将页脚定位在底部：
-```
+```kotlin
 object TopWithFooter : Arrangement.Vertical {
     override fun Density.arrange(
         totalSize: Int,

@@ -46,7 +46,7 @@ onLayout() -> dispatchLayout() -> dispatchLayoutStep1() -> dispatchLayoutStep2()
 
 ### 测量流程
 RecyclerView.`onMeasure()` 做了什么：
-```
+```java
 protected void onMeasure(int widthSpec, int heightSpec) {
     if (mLayout == null) {
         defaultOnMeasure(widthSpec, heightSpec);
@@ -116,7 +116,7 @@ State.`mLayoutStep` 有 3 种取值情况：
 
 
 #### dispatchLayoutStep1
-```
+```java
 The first step of a layout where we; 
 - process adapter updates 
 - decide which animation should run 
@@ -251,7 +251,7 @@ private void processAdapterUpdatesAndSetAnimationFlags() {
 4. 有必要的话，进行预布局并保存相关信息
 
 #### dispatchLayoutStep2
-```
+```java
 The second layout step where we do the actual layout of the views for the final state. This step might be run multiple times if necessary (e.g. measure).
 
 private void dispatchLayoutStep2() {
@@ -283,7 +283,7 @@ private void dispatchLayoutStep2() {
 `dispatchLayoutStep2` 通过调用 mLayout.`onLayoutChildren()` 来完成布局。
 
 mLayout.`onLayoutChildren()` 是如何执行的：
-```
+```java
 public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
     // layout algorithm:
     // 1) 通过检查 children 和其他变量，找到锚点坐标和锚点项目位置
@@ -472,7 +472,7 @@ public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State 
 
 #### detachAndScrapAttachedViews
 `detachAndScrapAttachedViews()` 的作用是：暂时 detach 并 scrap 所有当前附加的 子view。view 将被 scrap 到给定的 Recycler 中。 Recycler 可能更愿意在之前回收的其他 view 之前重用 scrap view。
-```
+```java
 public void detachAndScrapAttachedViews(@NonNull Recycler recycler) {
     final int childCount = getChildCount();
     for (int i = childCount - 1; i >= 0; i--) {
@@ -610,7 +610,7 @@ void scrapView(View view) {
   * 否则，缓存到 `mChangedScrap` 中
 
 #### fill
-```
+```java
 int fill(RecyclerView.Recycler recycler, LayoutState layoutState,
         RecyclerView.State state, boolean stopOnFocusable) {
     // max offset we should set is mFastScroll + available
@@ -741,7 +741,7 @@ void layoutChunk(RecyclerView.Recycler recycler, RecyclerView.State state,
 获取子view，接着调用 addView() 来把子view添加到RecyclerView 上，然后在执行子view 的 measure 流程。
 
 `getViewForPosition` 怎么执行的：
-```
+```java
 View getViewForPosition(int position, boolean dryRun) {
     return tryGetViewHolderForPositionByDeadline(position, dryRun, FOREVER_NS).itemView;
 }
@@ -907,7 +907,7 @@ getViewForPosition 是按照一个固定的顺序来获取子view的，即：`mC
 如果没有可用的缓存，则通过 adapter 加载一个新的view。
 
 获取到子view之后，如果当前处于预布局阶段，则只设置子view 的position 信息；否则就通过adapter绑定子view到数据。然后就调用addView把子view添加到RecyclerView上。
-```
+```java
 public void addView(View child, int index) {
     addViewInt(child, index, false);
 }

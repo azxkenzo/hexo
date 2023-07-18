@@ -29,10 +29,10 @@ class LooperThread extends Thread {
 
 ### 构造方法
 ```java
-    private Looper(boolean quitAllowed) {
-        mQueue = new MessageQueue(quitAllowed);
-        mThread = Thread.currentThread();
-    }
+private Looper(boolean quitAllowed) {
+    mQueue = new MessageQueue(quitAllowed);
+    mThread = Thread.currentThread();
+}
 ```
 
 ### prepare()
