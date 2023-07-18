@@ -3,7 +3,7 @@ title: Android - SystemUI - QuickSettings
 date: 2023-07-02 08:38:11
 tags: Android
 ---
-基于 Android 13 源码
+基于 AOSP Android 13 源码
 
 # CentralSurfaces
 
@@ -34,7 +34,7 @@ public void start() {
 }
 ```
 
-`createAndAddWindows()` 方法比较重要。先调用 `makeStatusBarView()` 初始化各个控件；然后调用 NotificationShadeWindowController.attach() 把 View 附加到 WindowManager 上。  
+`createAndAddWindows()` 方法比较重要。先调用 `makeStatusBarView()` 初始化各个控件；然后调用 `NotificationShadeWindowController.attach()` 把 View 附加到 WindowManager 上。  
 
 ```java
 // class CentralSurfacesImpl
@@ -86,9 +86,26 @@ protected void makeStatusBarView(@Nullable RegisterStatusBarResult result) {
 }
 ```
 
-## QSFragment
-看看 `QSFragment` 内部怎么处理的。
+`R.id.qs_frame` 所在的布局为 `R.layout.super_notification_shade`，通过 Dagger 注入的。
+```java
+// class StatusBarViewModule
+@Provides
+public static NotificationShadeWindowView providesNotificationShadeWindowView(
+        LayoutInflater layoutInflater) {
+    NotificationShadeWindowView notificationShadeWindowView = (NotificationShadeWindowView)
+            layoutInflater.inflate(R.layout.super_notification_shade, /* root= */ null);
+    if (notificationShadeWindowView == null) {
+        throw new IllegalStateException(
+                "R.layout.super_notification_shade could not be properly inflated");
+    }
 
+    return notificationShadeWindowView;
+}
+```
+
+## QSFragment
+
+`QSFragment` 使用的布局是 `R.layout.qs_panel`。
 ```java
 // class QSFragment
 public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -103,8 +120,6 @@ public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
     }
 }
 ```
-
-`QSFragment` 使用的布局是 `R.layout.qs_panel`。
 
 ```xml
 <com.android.systemui.qs.QSContainerImpl xmlns:android="http://schemas.android.com/apk/res/android"
@@ -167,7 +182,7 @@ public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
 `@layout/qs_customize_panel` 是磁贴显示的自定义界面。
 
 
-再来看看 `QSFragment` 的 `onViewCreated()` 方法，各控件的初始化都在这里面。
+`QSFragment` 的 `onViewCreated()` 方法，各控件的初始化都在这里面。
 
 ```java
 // class QSFragment
@@ -243,34 +258,64 @@ public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     mTunerService.addTunable(this, QS_TRANSPARENCY);
 }
 ```
-这里使用了各种 **_Controller_** 类来对布局进行控制。
+这里使用了各种 **_Controller_** 类来对布局进行控制。与 QS 相关的主要是 `mQSPanelController` 和 `mQuickQSPanelController`。这里调用它们的 `init()` 方法进行初始化。
 
 ## QuickQSPanelController
 
-未展开QS对应的 Controller 是 `QuickQSPanelController`。
+未展开QS对应的 Controller 是 `QuickQSPanelController`。`QuickQSPanelController` 的最顶层父类是 `ViewController`。
+
+```java
+// class ViewController
+public void init() {
+    if (mInited) {
+        return;
+    }
+    onInit();
+    mInited = true;
+
+    if (isAttachedToWindow()) {
+        mOnAttachStateListener.onViewAttachedToWindow(mView);
+    }
+    addOnAttachStateChangeListener(mOnAttachStateListener);
+}
+```
+mOnAttachStateListener 的 `onViewAttachedToWindow()` 会调用 `onViewAttached()`。
+
 ```java
 // class QuickQSPanelController
 protected void onInit() {
     super.onInit();
-    updateConfig();
     updateMediaExpansion();
     mMediaHost.setShowsOnlyActiveMedia(true);
     mMediaHost.init(MediaHierarchyManager.LOCATION_QQS);
-    mBrightnessSliderController.init();
 }
 ```
-这里调用 `updateConfig()` 更新配置。
+
 ```java
-// class QuickQSPanelController
-private void updateConfig() {
-    int maxTiles = getResources().getInteger(R.integer.quick_qs_panel_max_tiles);
-    int columns = getResources().getInteger(R.integer.quick_settings_num_columns);
-    columns = TileUtils.getQSColumnsCount(getContext(), columns);
-    mView.setMaxTiles(Math.max(columns, maxTiles));
+// class QSPanelControllerBase
+protected void onViewAttached() {
+    mQsTileRevealController = createTileRevealController();
+    if (mQsTileRevealController != null) {
+        mQsTileRevealController.setExpansion(mRevealExpansion);
+    }
+
+    mMediaHost.addVisibilityChangeListener(mMediaHostVisibilityListener);
+    mView.addOnConfigurationChangedListener(mOnConfigurationChangedListener);
+    mHost.addCallback(mQSHostCallback);
     setTiles();
+    mLastOrientation = getResources().getConfiguration().orientation;
+    mQSLogger.logOnViewAttached(mLastOrientation, mView.getDumpableTag());
+    switchTileLayout(true);
+
+    mDumpManager.registerDumpable(mView.getDumpableTag(), this);
 }
 ```
-计算并设置最大磁贴数，然后调用 `setTiles()` 设置磁贴。
+这里主要做了以下几件事：
+1. 为 mHost 设置回调 mQSHostCallback，mQSHostCallback 会调用 `setTiles()`；
+2. 调用 `setTiles()` 设置要显示的 tile；
+3. 调用 `switchTileLayout()` 将承载 tile 的容器添加到 view tree 中
+
+### setTiles()
 ```java
 // class QuickQSPanelController
 public void setTiles() {
@@ -284,16 +329,43 @@ public void setTiles() {
     super.setTiles(tiles, /* collapsedView */ true);
 }
 ```
-调用 `QSHost` 的 `getTiles()` 获取所有磁贴。这里使用的 `QSHost` 是 `QSTileHost`。
+1. 调用 `QSHost` 的 `getTiles()` 获取所有 tile。`QSHost` 的实现类是 `QSTileHost`。
+2. 保留 `mView.getNumQuickTiles()` 数量的 tile
+3. 调用 `super.setTiles(tiles, /* collapsedView */ true)`
+
+
+### switchTileLayout()
+```java
+// class QSPanelControllerBase
+boolean switchTileLayout(boolean force) {
+    /* Whether or not the panel currently contains a media player. */
+    boolean horizontal = shouldUseHorizontalLayout();
+    if (horizontal != mUsingHorizontalLayout || force) {
+        mQSLogger.logSwitchTileLayout(horizontal, mUsingHorizontalLayout, force,
+                mView.getDumpableTag());
+        mUsingHorizontalLayout = horizontal;
+        mView.setUsingHorizontalLayout(mUsingHorizontalLayout, mMediaHost.getHostView(), force);
+        updateMediaDisappearParameters();
+        if (mUsingHorizontalLayoutChangedListener != null) {
+            mUsingHorizontalLayoutChangedListener.run();
+        }
+        return true;
+    }
+    return false;
+}
+```
+调用 `mView.setUsingHorizontalLayout()`，QuickQSPanelController 的 mView 是 `QuickQSPanel`。
+
+
+## QSTileHost
 ```java
 // class QSTileHost
 public Collection<QSTile> getTiles() {
     return mTiles.values();
 }
 ```
-在获取到指定数量的磁贴后，就调用父类 `QSPanelControllerBase` 的 `setTiles()`。
 
-## QSHost
+#### onTuningChanged()
 往 `mTiles` 中填充数据的过程发生在 `onTuningChanged()` 中。`onTuningChanged()` 是 `TunerService` 的回调。
 ```java
 // class QSTileHost
@@ -391,7 +463,11 @@ public void onTuningChanged(String key, String newValue) {
     }
 }
 ```
-这里调用 `loadTileSpecs()` 加载 TileSpec。
+1. 调用 `loadTileSpecs()` 加载 TileSpec。
+2. 在必要时，调用 `createTile()` 创建 tile
+3. 调用 mCallbacks 的 onTilesChanged()
+
+#### loadTileSpecs()
 ```java
 // class QSTileHost
 protected static List<String> loadTileSpecs(Context context, String tileList) {
@@ -430,15 +506,14 @@ protected static List<String> loadTileSpecs(Context context, String tileList) {
     return tiles;
 }
 ```
-这里会加载默认磁贴和其他磁贴。默认磁贴通过 `QSHost.getDefaultSpecs()` 获取。默认磁贴写在了 `R.string.quick_settings_tiles_default` 中。
+这里会加载默认 TileSpec 和其他 TileSpec。默认 TileSpec 通过 `QSHost.getDefaultSpecs()` 获取。默认 TileSpec 写在了 `R.string.quick_settings_tiles_default` 中。
 ```
 <string name="quick_settings_tiles_default" translatable="false">
     internet,bt,flashlight,dnd,alarm,airplane,nfc,rotation,battery,controls,wallet,cast,screenrecord
 </string>
 ```
 
-再回到 `onTuningChanged()` 中。在调用 `loadTileSpecs()` 加载 TileSpec 完之后，就遍历 tileSpecs 创建或重用相应的 `QSTile`。
-这里调用 `createTile()` 创建磁贴。
+#### createTile()
 ```java
 // class QSTileHost
 public QSTile createTile(String tileSpec) {
@@ -452,6 +527,7 @@ public QSTile createTile(String tileSpec) {
 }
 ```
 调用 `QSFactory` 的 `createTile()` 创建磁贴。`QSFactory` 的实现类是 `QSFactoryImpl`。
+
 ```java
 // class QSFactoryImpl
 public final QSTile createTile(String tileSpec) {
@@ -483,20 +559,44 @@ protected QSTileImpl createTileInternal(String tileSpec) {
     return null;
 }
 ```
-这里把磁贴分为了三类：Stock、Custom 和 Broken。Stock 为系统预制的磁贴；Custom 为 App 自定义的磁贴。
-Stock 磁贴从 `mTileMap` 中获取。`mTileMap` 中的数据是使用 Dagger 注入的。
+这里把 tile 分为了三类：Stock、Custom 和 Broken。Stock 为系统预制的 tile；Custom 为 App 自定义的 tile。
+Stock tile 从 `mTileMap` 中获取。`mTileMap` 中的数据是使用 Dagger 注入的。
 
-`QSFactoryImpl` 的注释中说明了创建默认磁贴的方法。
+`QSFactoryImpl` 的注释中说明了创建默认 tile 的方法。
 ```
-要在 SystemUI 中创建新磁贴，tile 类应扩展 {@link QSTileImpl} 并具有一个 public static final 字段 - TILE_SPEC，该字段充当该 tile 的唯一键。 
+要在 SystemUI 中创建新 tile，tile 类应扩展 {@link QSTileImpl} 并具有一个 public static final 字段 - TILE_SPEC，该字段充当该 tile 的唯一键。 
 （例如{@link com.android.systemui.qs.tiles.DreamTile#TILE_SPEC}）
 
 之后，创建或查找现有的 Module 类来容纳 tile 的 binding 方法（例如 {@link com.android.systemui.accessibility.AccessibilityModule}）。 
 如果创建新 Module，请将 Module 添加到 SystemUI dagger graph 中，方法是将其包含在适当的 Module 中。
 ```
 
+#### createTileView()
+```java
+// class QSTileHost
+public QSTileView createTileView(Context themedContext, QSTile tile, boolean collapsedView) {
+    for (int i = 0; i < mQsFactories.size(); i++) {
+        QSTileView view = mQsFactories.get(i)
+                .createTileView(themedContext, tile, collapsedView);
+        if (view != null) {
+            return view;
+        }
+    }
+    throw new RuntimeException("Default factory didn't create view for " + tile.getTileSpec());
+}
+```
+
+```java
+// class QSFactoryImpl
+public QSTileView createTileView(Context context, QSTile tile, boolean collapsedView) {
+    QSIconView icon = tile.createTileView(context);
+    return new QSTileViewImpl(context, icon, collapsedView);
+}
+```
+
+
 ## QSPanelControllerBase
-`QuickQSPanelController` 的 `setTiles()` 中，在获取到指定数量的磁贴后，就调用父类 `QSPanelControllerBase` 的 `setTiles()`。
+`QuickQSPanelController` 的 `setTiles()` 中，在获取到指定数量的 tile 后，就调用父类 `QSPanelControllerBase` 的 `setTiles()`。
 
 ```java
 // class QSPanelControllerBase
@@ -517,6 +617,7 @@ public void setTiles(Collection<QSTile> tiles, boolean collapsedView) {
 }
 ```
 先清空 `ArrayList<TileRecord>` 中的数据，再遍历调用 `addTile()`。
+
 ```java
 // class QSPanelControllerBase
 private void addTile(final QSTile tile, boolean collapsedView) {
@@ -535,29 +636,79 @@ private void addTile(final QSTile tile, boolean collapsedView) {
     mCachedSpecs = getTilesSpecs();
 }
 ```
-先调用 `QSHost` 的 `createTileView()` 创建 `QSTileView`。
+1. 调用 `mHost.createTileView()` 创建 QSTileView，然后构建 TileRecord
+2. 调用 `mView.addTile()`
+
+
+## QSPanel
+
+### setUsingHorizontalLayout()
+调用 `setUsingHorizontalLayout()` 将承载 tile 的容器添加到 view tree 中
 ```java
-// class QSTileHost
-public QSTileView createTileView(Context themedContext, QSTile tile, boolean collapsedView) {
-    for (int i = 0; i < mQsFactories.size(); i++) {
-        QSTileView view = mQsFactories.get(i)
-                .createTileView(themedContext, tile, collapsedView);
-        if (view != null) {
-            return view;
+// class QSPanel
+void setUsingHorizontalLayout(boolean horizontal, ViewGroup mediaHostView, boolean force) {
+    if (horizontal != mUsingHorizontalLayout || force) {
+        Log.d(getDumpableTag(), "setUsingHorizontalLayout: " + horizontal + ", " + force);
+        mUsingHorizontalLayout = horizontal;
+        ViewGroup newParent = horizontal ? mHorizontalContentContainer : this;
+        switchAllContentToParent(newParent, mTileLayout);
+        reAttachMediaHost(mediaHostView, horizontal);
+        if (needsDynamicRowsAndColumns()) {
+            mTileLayout.setMinRows(horizontal ? 2 : 1);
+            mTileLayout.setMaxColumns(horizontal ? 2 : 4);
         }
+        updateMargins(mediaHostView);
+        mHorizontalLinearLayout.setVisibility(horizontal ? View.VISIBLE : View.GONE);
     }
-    throw new RuntimeException("Default factory didn't create view for " + tile.getTileSpec());
 }
 ```
+调用 `switchAllContentToParent(newParent, mTileLayout)`
+
 ```java
-// class QSFactoryImpl
-public QSTileView createTileView(Context context, QSTile tile, boolean collapsedView) {
-    QSIconView icon = tile.createTileView(context);
-    return new QSTileViewImpl(context, icon, collapsedView);
+private void switchAllContentToParent(ViewGroup parent, QSTileLayout newLayout) {
+    int index = parent == this ? mMovableContentStartIndex : 0;
+
+    // Let's first move the tileLayout to the new parent, since that should come first.
+    switchToParent((View) newLayout, parent, index);
+    index++;
+
+    if (mFooter != null) {
+        // Then the footer with the settings
+        switchToParent(mFooter, parent, index);
+        index++;
+    }
 }
 ```
 
-然后调用 `QuickQSPanel` 的 `addTile()` 添加磁贴。
+```java
+static void switchToParent(View child, ViewGroup parent, int index, String tag) {
+    if (parent == null) {
+        Log.w(tag, "Trying to move view to null parent",
+                new IllegalStateException());
+        return;
+    }
+    ViewGroup currentParent = (ViewGroup) child.getParent();
+    if (currentParent != parent) {
+        if (currentParent != null) {
+            currentParent.removeView(child);
+        }
+        parent.addView(child, index);
+        return;
+    }
+    // Same parent, we are just changing indices
+    int currentIndex = parent.indexOfChild(child);
+    if (currentIndex == index) {
+        // We want to be in the same place. Nothing to do here
+        return;
+    }
+    parent.removeView(child);
+    parent.addView(child, index);
+}
+```
+
+
+### addTile()
+调用 `addTile()` 添加磁贴。
 ```java
 // class QSPanel
 void addTile(QSPanelControllerBase.TileRecord tileRecord) {
@@ -579,8 +730,19 @@ void addTile(QSPanelControllerBase.TileRecord tileRecord) {
     }
 }
 ```
+1. 为 tile 设置 callback，即 `drawTile(tileRecord, state)`
+2. 调用 tileView 的 `init()`，对 `QSTileView` 进行初始化 
+3. 调用 tile 的 `refreshState()` 刷新状态
+4. 调用 `mTileLayout.addTile()`
+
+### mTileLayout
+mTileLayout 的类型是 `QSTileLayout` 接口。其实现类在 QSPanel 中是 `PagedTileLayout`，在 QuickQSPanel 中是 `QQSSideLabelTileLayout`。
+
+
+
 ## PagedTileLayout
-`mTileLayout` 是一个 `PagedTileLayout`，继承自 `ViewPager`，实现了 `QSTileLayout` 接口。
+`PagedTileLayout` 继承自 `ViewPager`
+
 ```java
 // class PagedTileLayout
 public void addTile(TileRecord tile) {
@@ -732,7 +894,8 @@ private void distributeTiles() {
     }
 }
 ```
-看下 `SideLabelTileLayout` 的 `addTile()` 怎么做的。`SideLabelTileLayout` 没有重写 `addTile()`，所以这里调用父类 `TileLayout` 中的。
+
+`SideLabelTileLayout` 没有重写 `addTile()`，所以这里调用父类 `TileLayout` 中的。
 ```java
 // class TileLayout
 public void addTile(TileRecord tile) {
@@ -747,13 +910,18 @@ protected void addTileView(TileRecord tile) {
 ```
 
 
+
+
+
+
 ## Tile 更新流程：
-* QSTileImpl.handleRefreshState() -> handleUpdateState()
-* QSTileImpl.handleRefreshState() -> handleStateChanged()
+* QSTileImpl.`refreshState()` -> handleRefreshState()
+* QSTileImpl.handleRefreshState() -> `handleUpdateState()`
+* QSTileImpl.handleRefreshState() -> `handleStateChanged()`
 * QSTileImpl.handleStateChanged() -> QSTile.Callback.onStateChanged()
 * QSTile.Callback.onStateChanged() -> QSPanel.drawTile()
 * QSPanel.drawTile() -> QSTileView.onStateChanged()
-* QSTileView.onStateChanged() -> QSTileViewImpl.handleStateChanged()
+* QSTileView.onStateChanged() -> QSTileViewImpl.`handleStateChanged()`
 
 
 ## Tile 测量流程
